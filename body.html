@@ -1,0 +1,2657 @@
+
+
+<style type="text/css">
+  ins { color:#000000; text-decoration:none; font-weight:bold; background-color:#A0FFA0 }
+  .new { text-decoration:none; font-weight:bold; background-color:#D0FFD0 }
+  del { text-decoration:line-through; background-color:#FFA0A0 }
+  strong { font-weight: inherit; color: #2020ff }
+  .old { background-color:#ffff40 }
+  .old ins { background-color:#a0ff30 }
+</style>
+
+
+
+
+<cxx-clause id="intro">
+  <h1>General</h1>
+  <cxx-section  id="general.scope">
+    <h1>Scope</h1>
+    <p>This Technical Specification describes extensions to the C++ 
+    Programming Language (<cxx-ref to="general.references"></cxx-ref>) that
+    enable the specification of Transactional Memory. These extensions include 
+    new syntactic forms and modifications to existing language and library.</p>
+
+    <p>The International Standard, ISO/IEC 14882, provides important context
+    and specification for this Technical Specification. This document is 
+    written as a set of changes against that specification. Instructions
+    to modify or add paragraphs are written as explicit instructions. 
+    Modifications made directly to existing text from the International
+    Standard
+    use <ins>green</ins> to represent added text and
+    <del>strikethrough</del> to represent deleted text. </p>
+            
+      <p>This Technical Specification is non-normative. Some of the functionality
+      described by this Technical Specification may be considered for standardization
+      in a future version of C++, but it is not currently part of any C++ standard.
+      Some of the functionality in this Technical Specification may never be
+      standardized, and other functionality may be standardized in a substantially
+      changed form.</p>
+      
+      <p>The goal of this Technical Specification is to build widespread existing
+      practice for Transactional Memory. It gives
+      advice on extensions to those vendors who wish to provide them.</p>
+  </cxx-section>
+  
+      <cxx-section  id="general.ack">
+    <h1>Acknowledgements</h1>
+    <p>
+This work is the result of collaboration of researchers in industry and academia, 
+including the Transactional Memory Specification Drafting Group  and the 
+follow-on WG21 study group SG5.  We wish to thank people who made valuable contributions 
+within and outside these groups, including Hans Boehm, Justin Gottschlich, 
+Victor Luchangco, Jens Maurer, Paul McKenney, Maged Michael, Mark Moir, 
+Torvald Riegel, Michael Scott, Tatiana Shpeisman, Michael Spear, Michael Wong, 
+and many others not named here who contributed to the discussion.
+</p>
+
+</cxx-section>
+
+  <cxx-section  id="general.references">
+    <h1>Normative references</h1>
+    <p>The following referenced document is indispensable for the
+    application of this document. For dated references, only the
+    edition cited applies. For undated references, the latest edition
+    of the referenced document (including any amendments) applies.</p>
+    <ul>
+      <li>ISO/IEC 14882:2014, <cite>Programming Languages - C++</cite>
+      <cxx-foreign-index id="cxx" src="cxx14_index.json" name="C++"></cxx-foreign-index></li>
+    </ul>
+
+    <p>ISO/IEC 14882:2014 is hereinafter called the <dfn>C++ Standard</dfn>.
+    Beginning with section 1.4 below, all clause and section numbers, titles, and 
+    symbolic references in [brackets] refer to the corresponding elements of the C++ Standard.  
+    Sections 1.1 through 1.3 of this Technical Specification are introductory material 
+    and are unrelated to the similarly-numbered sections of the <dfn>C++ Standard</dfn>.	
+  </p>
+    
+
+  </cxx-section>
+  
+
+
+  
+  <cxx-section id="intro.compliance" number=4>
+    <h1>Implementation compliance</h1>
+    
+
+    
+
+    
+    
+    <p>Conformance requirements for this specification are the same as those 
+    defined in 1.4 [intro.compliance].
+    <cxx-note>Conformance is defined in terms of the behavior of
+    programs.</cxxnote></p>
+  </cxx-section>
+
+
+
+
+<cxx-section id="intro.multithread" number=10>
+   <h1>Multi-threaded executions and data races</h1>
+<p>
+Add a paragraph 9 to section 1.10 [intro.multithread] after
+paragraph 8:
+
+<blockquote class="new">
+<p number=9>
+The start and the end of each synchronized block or atomic block is a
+full-expression (1.9 [intro.execution]).  A synchronized block (6.9
+[stmt.sync]) or atomic block (6.10 [stmt.tx]) that is not dynamically
+nested within another synchronized block or atomic block is called an
+outer block.  [ Note: Due to syntactic constraints,
+blocks cannot overlap unless one is nested within the
+other. ] There is a global total order of execution for all outer
+blocks.  If, in that total order, T1 is ordered before T2, then the
+end of T1 synchronizes with the start of T2.
+</p>
+</blockquote>
+
+
+
+
+<p style="page-break-before: always">Change in 1.10 [intro.multithread] paragraph 10:
+
+<blockquote>
+<p number=10>
+<ins>Synchronized and atomic blocks as well as certain</ins>
+<del>Certain</del> library calls <em>synchronize with</em>
+other <ins>synchronized blocks, atomic blocks,
+and</ins> library calls performed by another thread.
+
+</blockquote>
+<p>
+Change in 1.10 [intro.multithread] paragraph 21:
+
+<blockquote>
+<p number=21>
+The execution of a program contains a <em>data race</em> if it
+contains two conflicting actions in different threads, at least one of
+which is not atomic, and neither happens before the other. Any such
+data race results in undefined behavior. [ Note: It can be shown that
+programs that correctly use mutexes<ins>, synchronized and atomic
+blocks,</ins> and <code>memory_order_seq_cst</code> operations to
+prevent all data races and use no other synchronization operations
+behave as if the operations executed by their constituent threads were
+simply interleaved, with each value computation of an object being
+taken from the last side effect on that object in that
+interleaving. This is normally referred to as "sequential
+consistency".
+
+However, this applies only to data-race-free programs,
+and data-race-free programs cannot observe most program
+transformations that do not change single-threaded program
+semantics. In fact, most single-threaded program transformations
+continue to be allowed, since any program that behaves differently as
+a result must perform an undefined operation. -- end note ]
+
+</blockquote>
+
+
+<p>
+Add a new paragraph 22 after 1.10 [intro.multithread] paragraph 21:
+<blockquote class="new">
+[ Note: Due to the constraints on transaction safety (8.4.4
+[dcl.fct.def.tx]), the following holds for a data-race-free program:
+If the start of an atomic block T is sequenced before an evaluation A,
+A is sequenced before the end of T, and A inter-thread happens before
+some evaluation B, then the end of T inter-thread happens before B.
+If an evaluation C inter-thread happens before that evaluation A,
+then C inter-thread happens before the start of T.
+These properties in turn imply that in any simple interleaved
+(sequentially consistent) execution, the operations of each atomic
+block appear to be contiguous in the interleaving.  -- end note ]
+</blockquote>
+
+</cxx-section>
+</cxx-clause>
+
+<cxx-clause id="lex" number=2>
+  <h1>Lexical conventions</h1>
+  <cxx-section id="lex.name" number=11>
+   <h1>Identifiers</h1>
+
+
+<p>
+In section 2.11 [lex.name] paragraph 2, add
+<code>transaction_safe</code> and
+<code>transaction_safe_noinherit</code> to the table.
+</p>
+</cxx-section>
+
+  <cxx-section id="lex.key" number=12>
+   <h1>Keywords</h1>
+<p>
+In section 2.12 [lex.key] paragraph 1, add the keywords
+<code>synchronized</code>, <code>atomic_noexcept</code>,
+<code>atomic_cancel</code>, and <code>atomic_commit</code> to
+the table.
+</p>
+</cxx-section>
+</cxx-clause>
+
+<cxx-clause id="conv" number=4>
+  <h1>Standard conversions</h1>
+  <cxx-section id="conv.func" number=3>
+   <h1>Function-to-pointer conversion</h1>
+
+<p>
+Change in section 4.3 [conv.func] paragraph 1:
+
+<blockquote>
+An lvalue of function type T can be converted to a prvalue of type
+"pointer to <del>T."</del> <ins>T".</ins>  <ins>An lvalue of type "transaction-safe
+function" can be converted to a prvalue of type "pointer to
+function".</ins> The result is a pointer to the function. [ Footnote:
+... ]
+
+</blockquote>
+
+
+
+
+
+</cxx-section>
+
+  <cxx-section id="conv.tx" number=14>
+   <h1>Transaction-safety conversion</h1>
+<p>
+Add a new section 4.14 [conv.tx] paragraph 1:
+
+<blockquote class="new">
+<b>4.14 [conv.tx] Transaction-safety conversion</b><br>
+
+
+A prvalue of type "pointer to <code>transaction_safe</code> function"
+can be converted to a prvalue of type "pointer to function".  The
+result is a pointer to the function.  A prvalue of type
+"pointer to member of type <code>transaction_safe</code> function" can
+be converted to a prvalue of type "pointer to member of type
+function".  The result points to the member function.
+
+</blockquote>
+
+</cxx-section>
+</cxx-clause>
+
+<cxx-clause id="expr" number=5>
+  <h1>Expressions</h1>
+
+<p>
+
+Change in 5 [expr] paragraph 13:
+
+<blockquote>
+[ Note: ... ] The <em>composite pointer type</em> of two operands p1
+and p2 having types T1 and T2, respectively, where at least one is a
+pointer or pointer to member type or <code>std::nullptr_t</code>, is:
+
+<ul>
+<li>...</li>
+
+<li>if T1 or T2 is "pointer to cv1 void" and the other type is "pointer 
+to cv2 T", "pointer to cv12 void", where cv12 is the union of cv1 and 
+cv2 ;</li>
+
+<li><ins>if T1 is "pointer to <code>transaction_safe</code> function"
+and T2 is "pointer to function", where the function types are
+otherwise the same, T2, and vice versa;</ins></li>
+
+<li>...</li>
+
+</ul>
+
+</blockquote>
+
+  <cxx-section id="expr.prim" number=1>
+   <h1>Primary expressions</h1>
+  <cxx-section id="expr.prim.lambda" number=2>
+   <h1>Lambda expressions</h1>
+<p>
+Change in 5.1.2 [expr.prim.lambda] paragraph 1:
+
+
+<blockquote>
+<pre><em>lambda-declarator:
+     ( parameter-declaration-clause )</em> mutable<sub>opt</sub> <ins>transaction_safe<sub>opt</sub></ins>
+            <em>exception-specification<sub>opt</sub> attribute-specifier-seq<sub>opt</sub> trailing-return-type<sub>opt</sub> </em>
+</pre>
+
+</blockquote>
+
+
+<p>
+
+Change in 5.1.2 [expr.prim.lambda] paragraph 5:
+
+<blockquote>
+This function call operator or operator template is declared
+<code>const</code> (9.3.1) if and only if the
+<em>lambda-expression</em>'s <em>parameter-declaration-clause</em> is
+not followed by <code>mutable</code>. It is neither virtual nor
+declared volatile.  <ins>It is declared <code>transaction_safe</code>
+if and only if the <em>lambda-expression</em>'s
+<em>parameter-declaration-clause</em> is followed by
+<code>transaction_safe</code> or, in a non-generic
+<em>lambda-expression</em>, it has a transaction-safe function
+definition (8.4.4 [dcl.fct.def.tx]).</ins> Any
+<em>exception-specification</em> specified on a
+<em>lambda-expression</em> applies to the corresponding function call
+operator or operator template. ...
+
+</blockquote>
+
+
+
+
+<p>
+Change in 5.1.2 [expr.prim.lambda] paragraph 6:
+
+<blockquote>
+The closure type for a non-generic <em>lambda-expression</em> with no
+<em>lambda-capture</em> has a public non-virtual non-explicit const
+<ins><code>transaction_safe</code></ins> conversion function to
+pointer to function with C++ language linkage (7.5 [dcl.link]) having
+the same parameter and return types as the closure type's function
+call operator. <ins>That pointer is a pointer to transaction-safe
+function if the function call operator is transaction-safe.</ins>
+
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+
+  <cxx-section id="expr.post" number=2>
+   <h1>Postfix expressions</h1>
+<cxx-section id="expr.call" number=2>
+   <h1>Function call</h1>
+
+<p>
+Add at the end of 5.2.2 [expr.call] paragraph 1:
+
+<blockquote>
+... [ Note: ... ] <ins>A call to a virtual function that is evaluated
+within a synchronized (6.9 [stmt.sync]) or atomic block (6.10
+[stmt.tx]) results in undefined behavior if the virtual function is
+declared <code> transaction_safe_noinherit</code> and the final
+overrider is not declared <code>transaction_safe</code>.</ins>
+
+</blockquote>
+
+
+<p>
+
+Add  paragraph 10 after 5.2.2 [expr.call] paragraph 9:
+
+<blockquote>
+<p>
+Recursive calls are permitted, except to the function named main
+(3.6.1)
+</p>
+
+<p class="new">
+Calling a function that is not transaction-safe (8.4.4
+[dcl.fct.def.tx]) through a pointer to or lvalue of type
+"transaction-safe function" has undefined behavior.
+</p>
+
+</blockquote>
+
+
+
+
+
+</cxx-section>
+
+
+  <cxx-section id="expr.static.cast" number=9>
+   <h1>Static cast</h1>
+<p>
+Change in 5.2.9 [expr.static.cast] paragraph 7:
+
+<blockquote>
+The inverse of any standard conversion sequence (Clause 4 [conv]) not
+containing an lvalue-to-rvalue (4.1 [conv.lval]), array-to-pointer
+(4.2 [conv.array]), function-to-pointer (4.3), null pointer (4.10),
+null member pointer (4.11), <del>or</del> boolean (4.12)<ins>,
+or transaction-safety (4.14 [conv.tx])</ins> conversion, can
+be performed explicitly using <code>static_cast</code>. ...
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+
+  <cxx-section id="expr.eq" number=10>
+   <h1>Equality operators</h1>
+<p>
+Change in 5.10 [expr.eq] paragraph 2:
+
+<blockquote>
+If at least one of the operands is a pointer, pointer conversions
+(4.10 [conv.ptr])<ins>, transaction-safety conversions (4.14
+[conv.tx]),</ins> and qualification conversions (4.4 [conv.qual]) are
+performed on both operands to bring them to their composite pointer
+type (clause 5 [expr]).  Comparing pointers is defined as follows:
+<ins>Before transaction-safety conversions, if one pointer is of type
+"pointer to function", the other is of type "pointer
+to <code>transaction_safe</code> function", and both point to the same
+function, it is unspecified whether the pointers compare equal.
+Otherwise,</ins> <del>Two</del> <ins>two</ins> pointers compare equal
+if they are both null, both point to the same function, or both
+represent the same address (3.9.2), otherwise they compare unequal.
+
+
+</blockquote>
+
+</cxx-section>
+
+
+  <cxx-section id="expr.cond" number=16>
+   <h1>Conditional operator</h1>
+<p>
+Change in 5.16 [expr.cond] paragraph 6:
+
+<blockquote>
+<ul>
+<li>One or both of the second and third operands have pointer type;
+pointer conversions (4.10 [conv.ptr])<ins>, transaction-safety
+conversions (4.14 [conv.tx]),</ins> and qualification conversions (4.4
+[conv.qual]) are performed to bring them to their composite pointer type
+(5 [expr]). ...</li>
+
+<li>...</li>
+
+</ul>
+
+</blockquote>
+
+</cxx-section>
+</cxx-clause>
+
+
+  <cxx-clause id="stmt.stmt" number=6>
+   <h1>Statements</h1>
+ 
+<p>
+In 6 [stmt.stmt] paragraph 1, add two productions to
+the grammar:
+
+<blockquote>
+<pre><em>
+statement:
+      labeled-statement
+      attribute-specifier-seq<sub>opt</sub> expression-statement
+      attribute-specifier-seq<sub>opt</sub> compound-statement
+      attribute-specifier-seq<sub>opt</sub> selection-statement
+      attribute-specifier-seq<sub>opt</sub> iteration-statement
+      attribute-specifier-seq<sub>opt</sub> jump-statement
+      declaration-statement
+      attribute-specifier-seq<sub>opt</sub> try-block
+      <ins>synchronized-statement</ins>
+      <ins>atomic-statement</ins>
+</em>
+</pre>
+</blockquote>
+
+
+ <cxx-section id="stmt.jump" number=6>
+   <h1>Jump statements</h1>
+   
+   
+<p>
+Add a new paragraph 3 at the end of 6.6 [stmt.jump]:
+
+<blockquote class="new">
+Transfer out of an atomic block other than via an exception executes
+the end of the atomic block.  [ Note: Colloquially, this is known as
+committing the transaction.  For exceptions, see 15.2
+[except.ctor]. -- end note ] Transfer out of a synchronized
+block (including via an exception) executes the end of the
+synchronized block.
+
+</blockquote>
+
+</cxx-section>
+
+ <cxx-section id="stmt.sync" number=9>
+   <h1>Synchronized statement</h1>
+   
+<p>
+
+Add a new section 6.9 [stmt.sync] paragraph 1:
+
+<blockquote class="new">
+
+<b>6.9 [stmt.sync] Synchronized statement</b><br>
+
+<pre><em>synchronized-statement</em>:
+       synchronized <em>compound-statement</em>
+</pre>
+<p>
+A synchronized statement is also called a <em>synchronized
+block</em>.
+</p>
+
+<p>
+The <em>start of the synchronized block</em> is immediately before the
+opening <code>{</code> of the <em>compound-statement</em>.  The
+<em>end of the synchronized block</em> is immediately after the
+closing <code>}</code> of the <em>compound-statement</em>.
+</p>
+
+<p>
+A <code>goto</code> or <code>switch</code> statement shall not be used
+to transfer control into a synchronized block.
+</p>
+
+<p>[ Example:</p>
+<pre>int f()
+{
+  static int i = 0;
+  synchronized {
+    printf("before %d\n", i);
+    ++i;
+    printf("after %d\n", i);
+    return i;
+  }
+}
+</pre>
+
+Each invocation of <code>f</code> (even when called from several
+threads simultaneously) retrieves a unique value (ignoring overflow).
+The output is guaranteed to comprise consistent
+before/after pairs.  -- end example ]
+
+</blockquote>
+
+</cxx-section>
+
+ <cxx-section id="stmt.tx" number=10>
+   <h1>Atomic statement</h1>
+
+<p>
+
+Add a new section 6.10 [stmt.tx] paragraph 1:
+
+<blockquote class="new">
+
+<b>6.10 [stmt.tx] Atomic statement</b><br>
+
+<pre><em>atomic-statement</em>:
+       atomic_noexcept <em>compound-statement</em>
+       atomic_cancel <em>compound-statement</em>
+       atomic_commit <em>compound-statement</em>
+</pre>
+
+<p>
+An atomic statement is also called an <em>atomic block</em>.  The
+program is ill-formed if the <em>compound-statement</em> is a
+transaction-unsafe statement (8.4.4 [dcl.fct.def.tx]).
+</p>
+
+<p>
+The <em>start of the atomic block</em> is immediately
+before the opening <code>{</code> of the <em>compound-statement</em>.
+The <em>end of the atomic block</em> is immediately
+after the closing <code>}</code> of the <em>compound-statement</em>. [
+Note: Thus, variables with automatic storage duration declared in the
+<em>compound-statement</em> are destroyed prior to reaching the end of
+the atomic block; see 6.6 [stmt.jump]. -- end note ]
+</p>
+
+<p>
+A <code>goto</code> or <code>switch</code> statement shall not be used
+to transfer control into an atomic block.
+</p>
+
+<p>[ Example:</p>
+<pre>int f()
+{
+  static int i = 0;
+  atomic_noexcept {
+    ++i;
+    return i;
+  }
+}
+</pre>
+
+Each invocation of <code>f</code> (even when called from several
+threads simultaneously) retrieves a unique value (ignoring overflow).
+-- end example ]
+
+</blockquote>
+
+</cxx-section>
+</cxx-clause>
+
+ <cxx-clause id="dcl.dcl" number=7>
+   <h1>Declarations</h1>
+ <cxx-section id="dcl.asm" number=4>
+   <h1>The <em>asm</em> declaration</h1>
+<p>
+Change in 7.4 [dcl.asm] paragraph 1:
+
+<blockquote>
+... The asm declaration is conditionally-supported; its meaning is
+implementation-defined. [ Note: Typically it is used to pass
+information through the implementation to an assembler. -- end note ]
+<ins>It is implementation-defined which asm declarations are
+transaction-safe (8.4.4 [dcl.fct.def.tx]), if any.</ins>
+</blockquote>
+
+</cxx-section>
+
+<cxx-section id="dcl.attr" number=6>
+   <h1>Attributes</h1>
+ <cxx-section id="dcl.attr.sync" number=6>
+   <h1>Attribute for optimization in synchronized blocks</h1>
+<p>
+Add a new section 7.6.6 [dcl.attr.sync] paragraph 1:
+
+<blockquote class="new">
+<b>7.6.6 [dcl.attr.sync] Attribute for optimization in synchronized blocks</b>
+
+<p>
+
+The <em>attribute-token</em> <code>optimize_for_synchronized</code>
+specifies that a function definition should be optimized for
+invocation from a <em>synchronized-statement</em> (6.9 [stmt.sync]).
+It shall appear at most once in each <em>attribute-list</em> and no
+<em>attribute-argument-clause</em> shall be present. The attribute may
+be applied to the <em>declarator-id</em> in a function declaration.
+The first declaration of a function shall specify the
+<code>optimize_for_synchronized</code> attribute if any declaration of
+that function specifies the <code>optimize_for_synchronized</code>
+attribute. If a function is declared with the
+<code>optimize_for_synchronized</code> attribute in one translation
+unit and the same function is declared without the
+<code>optimize_for_synchronized</code> attribute in another
+translation unit, the program is ill-formed; no diagnostic required.
+
+</p><p>
+
+[ Example:
+</p><pre>// translation unit 1
+[[optimize_for_synchronized]] int f(int);
+
+void g(int x) {
+  synchronized {
+    int ret = f(x*x);
+  }
+}
+
+// translation unit 2
+#include &lt;iostream&gt;
+
+extern int verbose;
+
+[[optimize_for_synchronized]] int f(int x)
+{
+  if (x &gt;= 0)
+    return x;
+  if (verbose &gt; 1)
+    std::cerr &lt;&lt; "failure: negative x" &lt;&lt; std::endl;
+  return -1;
+}
+</pre>
+
+If the attribute were not present for <code>f</code>, which is not
+declared <code>transaction_safe</code>, a program might have to drop
+out of speculative execution in <code>g</code>'s synchronized block
+every time when calling <code>f</code>, although that is only actually
+required for displaying the error message in the rare verbose error case.
+
+-- end example ]
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+</cxx-clause>
+
+ <cxx-clause id="dcl.decl" number=8>
+   <h1>Declarators</h1>
+
+<p>
+Change in clause 8 paragraph 4:
+
+<blockquote>
+<pre><em>parameters-and-qualifiers</em>:
+     ( <em>parameter-declaration-clause</em> ) <em>cv-qualifier-seq<sub>opt</sub>
+            ref-qualifier<sub>opt</sub></em> <ins><em>tx-qualifier</em><sub>opt</sub></ins> <em>exception-specification<sub>opt</sub> attribute-specifier-seq<sub>opt</sub></em>
+
+<ins><em>tx-qualifier</em>:
+     transaction_safe
+     transaction_safe_noinherit</ins>
+</pre>
+</blockquote>
+
+
+ <cxx-section id="dcl.meaning" number=3>
+   <h1>Meaning of declarators</h1>
+ <cxx-section id="dcl.fct" number=5>
+   <h1>Functions</h1>
+   
+<p>
+Change in 8.3.5 [dcl.fct] paragraph 1:
+
+<blockquote>
+In a declaration T D where D has the form
+<pre>    D1 ( <em>parameter-declaration-clause</em> ) <em>cv-qualifier-seq<sub>opt</sub>
+         ref-qualifier<sub>opt</sub></em> <ins><em>tx-qualifier</em><sub>opt</sub></ins> <em>exception-specification<sub>opt</sub> attribute-specifier-seq<sub>opt</sub></em>
+</pre>
+and the type of the contained <em>declarator-id</em> in the
+declaration T D1 is "derived-declarator-type-list T", the type of the
+<em>declarator-id</em> in D is "derived-declarator-type-list
+<ins><code>transaction_safe</code><sub>opt</sub></ins> function of
+(parameter-declaration-clause)
+<em>cv-qualifier-seq<sub>opt</sub> ref-qualifier<sub>opt</sub></em>
+returning T"<ins>, where the optional <code>transaction_safe</code> is present if a <em>tx-qualifier</em> is present</ins>. The
+optional <em>attribute-specifier-seq</em> appertains to the function type.
+</blockquote>
+<p>
+Change in 8.3.5 [dcl.fct] paragraph 2:
+<blockquote>
+In a declaration T D where D has the form
+</p><pre>    D1 ( <em>parameter-declaration-clause</em> ) <em>cv-qualifier-seq<sub>opt</sub>
+         ref-qualifier<sub>opt</sub></em> <ins><em>tx-qualifier</em><sub>opt</sub></ins> <em>exception-specification<sub>opt</sub> attribute-specifier-seq<sub>opt</sub> trailing-return-type</em>
+</pre>
+and the type of the contained <em>declarator-id</em> in the
+declaration T D1 is "derived-declarator-type-list T", T shall be the
+single <em>type-specifier</em> auto. The type of the
+<em>declarator-id</em> in D is "derived-declarator-type-list
+<ins><code>transaction_safe</code><sub>opt</sub></ins> function of
+(parameter-declaration-clause) <em>cv-qualifier-seq<sub>opt</sub>
+ref-qualifier<sub>opt</sub></em> returning
+<em>trailing-return-type</em>"<ins>, where the optional <code>transaction_safe</code> is present if a <em>tx-qualifier</em> is present</ins>.
+The optional <em>attribute-specifier-seq</em>
+appertains to the function type.
+</blockquote>
+
+
+
+<p>
+
+Change in 8.3.5 [dcl.fct] paragraph 5:
+
+<blockquote>
+... After determining the type of each parameter, any parameter of
+type "array of T" or "<ins><code>transaction_safe</code><sub>opt</sub></ins>
+function returning T" is adjusted to be "pointer to T" or "pointer to
+<ins><code>transaction_safe</code><sub>opt</sub></ins> function returning T,"
+respectively. ...
+
+</blockquote>
+
+<p>
+Change in 8.3.5 [dcl.fct] paragraph 6:
+
+<blockquote>
+... The return type, the parameter-type-list, the
+<em>ref-qualifier</em>, <del>and</del> the <em>cv-qualifier-seq</em>,
+<ins>and the <code>transaction_safe</code>
+qualifier,</ins> but not the default arguments (8.3.6
+[dcl.fct.default]) or the <em>exception specification</em> (15.4
+[except.spec]), are part of the function type. ...
+
+</blockquote>
+
+<p>
+Add  paragraph 16 at the end of section 8.3.5 [dcl.fct]:
+
+<blockquote class="new">
+
+<p>
+The <code>transaction_safe_noinherit</code> qualifier
+may only appear in a function declarator that declares a virtual
+function in a class definition.  A virtual function declared
+with the <code>transaction_safe_noinherit</code>
+qualifier is considered to be declared
+<code>transaction_safe</code>. [ Note: A virtual function so declared
+can be overridden by a function that is not transaction-safe (see 10.3
+class virtual), but calling such an overrider from a synchronized or
+atomic block causes undefined behavior (see 5.2.2 expr.call). -- end
+note ]
+
+All declarations of a function shall be declared
+<code>transaction_safe</code> if any declaration of that function is
+declared <code>transaction_safe</code>, except that the declaration of
+an explicit specialization (14.7.3 [temp.expl.spec]) may differ from
+the declaration that would be instantiated from the
+template; no diagnostic is required if conflicting
+declarations appear in different translation units.
+</p>
+
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+
+
+ <cxx-section id="dcl.fct.def" number=4>
+   <h1>Function definitions</h1>
+ <cxx-section id="dcl.fct.def.general" number=1>
+   <h1>In general</h1>
+
+<p>
+Change in section 8.4.1 [dcl.fct.def.general] paragraph 2:
+
+<blockquote>
+The <em>declarator</em> in a <em>function-definition</em> shall have
+the form
+<pre>         D1 <del>( <em>parameter-declaration-clause</em> ) <em>cv-qualifier-seq<sub>opt</sub>
+               ref-qualifier<sub>opt</sub> exception-specification<sub>opt</sub> attribute-specifier-seq<sub>opt</sub></em></del> 
+               <em><ins>parameters-and-qualifiers</ins> trailing-return-type<sub>opt</sub></em>
+</pre>
+</blockquote>
+
+
+
+
+
+</cxx-section>
+
+ <cxx-section id="dcl.fct.def.tx" number=4>
+   <h1>Transaction-safe function</h1>
+<p>
+Add a new section after 8.4.4 [dcl.fct.def.tx] paragraph 1:
+
+<blockquote class="new">
+<b>8.4.4 [dcl.fct.def.tx] Transaction-safe function
+definitions</b><br>
+
+<p>
+An expression is <em>transaction-unsafe</em> if it contains any of the
+following as a potentially-evaluated subexpression (3.2
+[basic.def.odr]):
+</p>
+
+<ul>
+<li>an lvalue-to-rvalue conversion (4.1 [conv.lval]) applied to a
+volatile glvalue [ Note: referring to a volatile object through a
+non-volatile glvalue has undefined behavior; see 7.1.6.1 [dcl.type.cv]
+-- end note ],</li>
+
+<li>an expression that modifies an object through a volatile glvalue,</li>
+
+<li>the creation of a temporary object of volatile-qualified type
+or with a subobject of volatile-qualified type,</li>
+
+<li>a function call (5.2.2 expr.call) whose
+<em>postfix-expression</em> is an <em>id-expression</em> that names a
+non-virtual function that is not transaction-safe,</li>
+
+<li>an implicit call of a non-virtual function that is not
+transaction-safe, or</li>
+
+<li>any other call of a function, where the function
+type is not "<code>transaction_safe</code> function".</li>
+
+</ul>
+
+<p>
+A statement is a <em>transaction-unsafe statement</em> if it
+lexically directly contains one of the following (including
+evaluations of default argument expressions in function calls
+and evaluations of <em>brace-or-equal-initializer</em>s for
+non-static data members in aggregate initialization (8.5.1
+dcl.init.aggr), but ignoring the declaration of default
+argument expressions, local classes, and the
+<em>compound-statement</em> of a <em>lambda-expression</em>):
+</p>
+
+<ul>
+<li>a full-expression that is transaction-unsafe,</li>
+<li>an <em>asm-definition</em> (7.4 [dcl.asm]) that is not
+transaction-safe,</li>
+<li>a declaration of a variable of volatile-qualified type or
+with a subobject of volatile-qualified type, or</li>
+<li>a statement that is transaction-unsafe (recursively).</li>
+</ul>
+
+</blockquote>
+
+
+
+
+
+<blockquote class="new">
+A function has a <em>transaction-safe definition</em> if none of the
+following applies:
+
+<ul>
+
+<li>any parameter has volatile-qualified type or has a subobject of volatile-qualified type,</li>
+
+<li>its <em>compound-statement</em> (including the one in the
+<em>function-try-block</em>, if any) is a transaction-unsafe statement,</li>
+
+<li>for a constructor or destructor, the corresponding class has
+a volatile non-static data member, or</li>
+
+<li>for a constructor, a full-expression in a
+<em>mem-initializer</em> or an <em>assignment-expression</em> in a
+<em>brace-or-equal-initializer</em> that is not ignored (12.6.2
+[class.base.init]) is transaction-unsafe.</li>
+
+</ul>
+
+[ Example:
+<pre>  extern volatile int * p = 0;
+  struct S {
+    virtual ~S();
+  };
+
+  int f() transaction_safe {
+    int x = 0;   // ok: not volatile
+    p = &amp;x;      // ok: the pointer is not volatile
+    int i = *p;      // error: read through volatile glvalue
+    S s;         // error: invocation of unsafe destructor
+  }
+</pre>
+-- end example ]
+
+<p>
+A function declared <code>transaction_safe</code> shall have a
+transaction-safe definition.
+</p>
+
+<p>
+A function is <em>transaction-safe</em> if it is declared
+<code>transaction_safe</code> (see 8.3.5 [dcl.fct]), or if it is
+a non-virtual function defined before its first
+odr-use (3.2 [basic.def.odr]) and it has a transaction-safe function
+definition. A specialization of a function template or of a member
+function of a class template, where the function or function template
+is not declared <code>transaction_safe</code>, but defined before the
+first point of instantiation, is transaction-safe if and only if it
+satisfies the conditions for a transaction-safe function definition. [
+Note: Even if a function is implicitly transaction-safe, its function
+type is not changed to "<code>transaction_safe</code> function". --
+end note ]
+</p>
+
+<p>
+While determining whether a function <code>f</code> is
+transaction-safe, <code>f</code> is assumed to be
+transaction-safe for directly and indirectly recursive
+calls. [ Example:
+</p><pre>  int f(int x) {    // is transaction-safe
+    if (x &lt;= 0)
+      return 0;
+    return x + f(x-1);
+  }
+</pre>
+-- end example ]
+<p></p>
+
+</blockquote>
+
+
+
+</cxx-section>
+</cxx-section>
+</cxx-clause>
+
+
+ <cxx-clause id="class.derived" number=10>
+   <h1>Derived classes</h1>
+   <cxx-section id="class.virtual" number=3>
+   <h1>Virtual functions</h1>
+
+<p>
+Add a new paragraph 17 at the end of section 10.3 [class.virtual]:
+
+<blockquote class="new">
+A function that overrides a function declared
+<code>transaction_safe</code>, but not
+<code>transaction_safe_noinherit</code>, is implicitly considered to
+be declared <code>transaction_safe</code>. [ Note: Its definition is
+ill-formed unless it actually has a transaction-safe definition (8.4.4
+dcl.fct.def.tx). -- end note ] A function declared
+<code>transaction_safe_noinherit</code> that overrides a function
+declared <code>transaction_safe</code> (but not
+<code>transaction_safe_noinherit</code>) is ill-formed. [ Example:
+
+<pre>struct B {
+  virtual void f() transaction_safe;
+  virtual ~B() transaction_safe_noinherit;
+};
+
+// pre-existing code
+struct D1 : B
+{
+  void f() override { }   // ok
+  ~D1() override { }   // ok
+};
+
+struct D2 : B
+{
+  void f() override { std::cout &lt;&lt; "D2::f" &lt;&lt; std::endl; }
+       // error: transaction-safe f has transaction-unsafe definition
+  ~D2() override { std::cout &lt;&lt; "~D2" &lt;&lt; std::endl; }     // ok
+};
+
+struct D3 : B
+{
+  void f() transaction_safe_noinherit override;
+         // error: B::f() is transaction_safe
+};
+
+int main()
+{
+  D2 * d2 = new D2;
+  B * b2 = d2;
+  atomic_commit {
+    B b;        // ok
+    D1 d1;      // ok
+    B&amp; b1 = d1;
+    D2 x;       // error: destructor of D2 is not transaction-safe
+    b1.f();     // ok, calls D1::f()
+    delete b2;  // undefined behavior: calls unsafe destructor of D2
+  }
+}
+</pre>
+-- end example ]
+
+</blockquote>
+
+</cxx-section>
+</cxx-clause>
+
+   <cxx-clause id="over" number=13>
+   <h1>Overloading</h1>
+   <cxx-section id="over.load" number=1>
+   <h1>Overloadable declarations</h1>
+
+<p>
+
+Change in 13.1 [over.load] paragraph 2:
+
+<blockquote>
+Certain function declarations cannot be overloaded:
+<ul>
+
+<li>Function declarations that differ only in the return type cannot
+be overloaded.</li>
+
+<li><ins>Function declarations that differ only in the presence or
+absence of a <em>tx-qualifier</em> cannot be overloaded.</ins></li>
+
+<li>...</li>
+</ul>
+
+</blockquote>
+
+</cxx-section>
+
+
+   <cxx-section id="over.match" number=3>
+   <h1>Overload resolution</h1>
+      <cxx-section id="over.match.best" number=3>
+   <h1>Best viable function</h1>
+      <cxx-section id="over.best.ics" number=1>
+   <h1>Implicit conversion sequences</h1>
+   <cxx-section id="over.ics.scs" number=1>
+   <h1>Standard conversion sequences</h1>
+   
+   
+<p>
+
+In 13.3.3.1.1 [over.ics.scs] paragraph 3, add an entry to table 12:
+
+<blockquote class="new">
+<ul>
+<li>Conversion: Transaction-safety conversion</li>
+<li>Category: Lvalue transformation</li>
+<li>Rank: Exact Match</li>
+<li>Subclause: 4.14 [conv.tx]
+</li></ul>
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+</cxx-section>
+</cxx-section>
+
+   <cxx-section id="over.over" number=4>
+   <h1>Address of overloaded function</h1>
+<p>
+Change in 13.4 [over.over] paragraph 1:
+
+<blockquote>
+... <del>The function selected is the one whose type is
+identical to the function type of the target type required in the
+context.</del>
+
+<ins>A function with type <code>F</code> is selected for the function
+type <code>FT</code> of the target type required in the context if F
+(after possibly applying the transaction-safety conversion (4.14
+[conv.tx])) is identical to FT.</ins>
+
+[ Note: ... ]
+
+</blockquote>
+
+<p>
+
+Change in 13.4 [over.over] paragraph 7:
+
+<blockquote>
+[ Note: <del>There are no standard conversions (Clause 4) of one
+pointer-to-function type into another. In particular, even</del>
+<ins>Even</ins> if B is a public base of D, we have
+<pre>D* f();
+B* (*p1)() = &amp;f;     // error
+void g(D*);
+void (*p2)(B*) = &amp;g; // error
+</pre>
+]
+</blockquote>
+
+</cxx-section>
+</cxx-clause>
+
+   <cxx-clause id="temp" number=14>
+   <h1>Templates</h1>
+   <cxx-section id="temp.param" number=1>
+   <h1>Template parameters</h1>
+
+<p>
+
+Change in 14.1 temp.param paragraph 8:
+
+<blockquote>
+A non-type template-parameter of type "array of T" or
+"<ins><code>transaction_safe</code><sub>opt</sub></ins> function
+returning T" is adjusted to be of type "pointer to T" or "pointer to
+<ins><code>transaction_safe</code><sub>opt</sub></ins> function
+returning T", respectively. [ Example: ... ]
+
+</blockquote>
+
+</cxx-section>
+
+   <cxx-section id="temp.spec" number=7>
+   <h1>Template instantiation and specialization</h1>
+   <cxx-section id="temp.expl.spec" number=3>
+   <h1>Explicit specialization</h1>
+
+<p>
+Add a new paragraph 20 in 14.7.3 temp.expl.spec:
+
+<blockquote class="new">
+
+An explicit specialization of a function template or of a member
+function of a class template can be declared
+<code>transaction_safe</code> (8.3.5 [dcl.fct.def]) independently of
+whether the corresponding template entity is declared
+<code>transaction_safe</code>. [ Example:
+
+<pre>template&lt;class T&gt;
+void f(T) transaction_safe;
+
+template&lt;&gt;
+void f(bool);   // not transaction-safe
+</pre>
+-- end example ]
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+
+   <cxx-section id="temp.fct.spec" number=8>
+   <h1>Function template specializations</h1>
+<p>
+Add a new paragraph 3 at the end of 14.8 [temp.fct.spec]:
+
+<blockquote class="new">
+A specialization instantiated from a function template or from
+a member function of a class template, where the function template or
+member function is declared <code>transaction_safe</code>,
+shall have a transaction-safe definition (8.4.4 [dcl.fct.def.tx]).
+
+</blockquote>
+
+
+
+      <cxx-section id="temp.deduct" number=2>
+   <h1>Template argument deduction</h1>
+   <cxx-section id="temp.deduct.call" number=1>
+   <h1>Deducing template arguments from a function call</h1>
+<p number=4>
+Change in 14.8.2.1 temp.deduct.call paragraph 4:
+
+<blockquote>
+... However, there are three cases that allow a difference:
+
+<ul>
+<li>...</li>
+
+<li>The transformed A can be another pointer or pointer to member type
+that can be converted to the deduced A via a qualification conversion
+(4.4 c[onv.qual]) <ins>or a transaction-safety conversion (4.14
+[conv.tx])</ins>.</li>
+
+<li>...</li>
+
+</ul>
+
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+</cxx-section>
+</cxx-clause>
+
+   <cxx-clause id="except" number=15>
+   <h1>Exception handling</h1>
+   <cxx-section id="except.throw" number=1>
+   <h1>Throwing an exception</h1>
+
+<p>
+Change in 15.1 except.throw paragraph 3:
+
+<blockquote>
+... Evaluating a <em>throw-expression</em> with an operand throws an
+exception; the type of the exception object is determined by removing
+any top-level cv-qualifiers from the static type of the operand and
+adjusting the type from "array of T" or
+"<ins><code>transaction_safe</code><sub>opt</sub></ins> function
+returning T" to "pointer to T" or "pointer to
+<ins><code>transaction_safe</code><sub>opt</sub></ins> function
+returning T," respectively.
+
+</blockquote>
+
+</cxx-section>
+
+   <cxx-section id="except.ctor" number=2>
+   <h1>Constructors and destructors</h1>
+<p>
+Change the section heading of 15.2 [except.ctor] and paragraph 1:
+
+<blockquote>
+
+<b>Section 15.2 [except.ctor] Constructors<ins>,</ins> <del>and</del>
+destructors<ins>, and atomic blocks</ins></b>
+
+<p>
+As control passes from the point where an exception is thrown to a
+handler, destructors are invoked for all automatic objects constructed
+since the try block was entered <ins>yet still in
+scope (6.6 [stmt.jump], and atomic blocks are terminated (see below)
+where the start, but not the end of the block, was
+executed since the try block was entered (6.10 [stmt.tx])</ins>.  The
+automatic objects are destroyed <ins>and atomic blocks
+are terminated</ins> in the reverse order of the completion of their
+construction <ins>and the execution of the start of the atomic
+blocks</ins>.
+</p>
+
+</blockquote>
+
+<p>
+In section 15.2 [except.ctor], add new paragraphs 4 and 5:
+
+<blockquote class="new">
+An atomic block is terminated according to its kind, as
+follows: Terminating an <code>atomic_commit</code> block
+executes the end of the atomic block (1.10 intro.multithread) and has
+no further effect.  [ Note: That is, control exits the atomic
+block after causing inter-thread synchronization. -- end note ]
+
+Terminating an <code>atomic_cancel</code> block, if the type of the
+current exception does not support transaction cancellation, or
+terminating an <code>atomic_noexcept</code> block, invokes
+<code>std::abort</code> (18.5 [support.start.term]). [ Footnote: If
+the effects of the atomic block become visible to other threads prior
+to program termination, some thread might make progress based on
+broken state, making debugging harder. -- end footnote ].
+
+Terminating an <code>atomic_cancel</code> block, if the type of the
+current exception supports transaction cancellation, <em>cancels</em>
+the atomic block by performing the following steps,
+in order:
+
+<ul>
+<li>A temporary object is copy-initialized (8.5 [dcl.init]) from the
+exception object.  [ Note: if the initialization terminates via an
+exception, <code>std::terminate</code> is called (15.1
+[except.throw]).  -- end note ]</li>
+
+<li>The values of all memory locations in the program that were
+modified by side effects of the operations of the atomic
+block, except those occupied by the temporary object, are
+restored to the values they had at the time the start of the
+atomic block was executed.</li>
+
+<li>The end of the atomic block is executed. [ Note:
+This causes inter-thread synchronization. -- end note ] </li>
+
+<li>The temporary object is used as the exception
+object in the subsequent stack unwinding.</li>
+
+</ul>
+
+<p>
+[ Note: A cancelled atomic block, although having no
+visible effect, still participates in data races (1.10
+[intro.multithread]).  -- end note ]
+</p>
+
+Non-volatile scalar types <em>support transaction cancellation</em>,
+as do those types specified as doing
+so in clauses 18 and 19.
+
+</blockquote>
+
+</cxx-section>
+
+   <cxx-section id="except.handle" number=3>
+   <h1>Handling an exception</h1>
+<p>
+Change in 15.3 except.handle paragraph 3:
+
+<blockquote>
+A <em>handler</em> is a match for an exception object of type E if
+
+<ul>
+
+<li>...</li>
+
+<li>the handler is of type cv T or const T&amp; where T is a pointer type
+and E is a pointer type that can be converted to T by <del>either or
+both of</del> <ins>one or more of</ins>
+
+<ul>
+
+<li>a standard pointer conversion (4.10 [conv.ptr]) not involving
+conversions to pointers to private or protected or ambiguous
+classes</li>
+
+<li>a qualification conversion <ins>(4.4 [conv.qual])</ins></li>
+
+<li><ins>a transaction-safety conversion (4.14 [conv.tx])</ins></li>
+
+</ul>
+
+</li><li>...</li>
+
+</ul>
+
+
+</blockquote>
+
+</cxx-section>
+
+
+   <cxx-section id="except.spec" number=4>
+   <h1>Exception specifications</h1>
+<p>
+Change in 15.4 except.spec paragraph 2:
+
+<blockquote>
+...  A type cv T, "array of T", or
+"<ins><code>transaction_safe</code><sub>opt</sub></ins> function
+returning T" denoted in an exception-specification is adjusted to type
+T, "pointer to T", or "pointer to
+<ins><code>transaction_safe</code><sub>opt</sub></ins> function
+returning T", respectively.
+
+</blockquote>
+
+</cxx-section>
+</cxx-clause>
+
+
+
+
+
+   <cxx-clause id="library" number=17>
+   <h1>Library introduction</h1>
+            <cxx-section id="description" number=5>
+   <h1>Method of description (Informative)</h1>
+         <cxx-section id="structure" number=1>
+   <h1>Structure of each clause</h1>
+      <cxx-section id="structure.specifications" number=4>
+   <h1>Detailed specifications</h1>
+<p>
+Change in 17.5.1.4 [structure.specifications] paragraph 3:
+
+<blockquote>
+
+<ul>
+<li>...</li>
+
+<li><em>Synchronization:</em> the synchronization operations (1.10)
+applicable to the function</li>
+
+<li><ins><em>Transactions:</em> the transaction-related properties of
+the function, in particular whether the function is
+transaction-safe (8.4.4 [dcl.fct.def.tx])</ins></li>
+
+<li>...</li>
+</ul>
+
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+</cxx-section>
+
+
+      <cxx-section id="requirements" number=6>
+   <h1>Library-wide requirements</h1>
+      <cxx-section id="utility.requirements" number=3>
+   <h1>Requirements on types and expressions</h1>
+      <cxx-section id="allocator.requirements" number=5>
+   <h1>Allocator requirements</h1>
+<p>
+In table 27 in 17.6.3.5 [allocator.requirements] paragraph 2,
+add a note for <code>X::rebind</code>:
+
+<blockquote class="new">
+All operations that are transaction-safe on <code>X</code>
+shall be transaction-safe on <code>Y</code>.
+
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+
+
+
+      <cxx-section id="conforming" number=5>
+   <h1>Conforming implementations</h1>
+      <cxx-section id="lib.txsafe" number=16>
+   <h1>Transaction safety</h1>
+   <p>
+Add a new section 17.6.5.16 [lib.txsafe] paragraph 1:
+
+<blockquote class="new">
+
+<b>17.6.5.16 [lib.txsafe] Transaction safety</b>
+
+<p>
+This standard explicitly requires that certain standard library
+functions are transaction-safe (8.4.4 dcl.fct.def.tx). An
+implementation shall not declare any standard library function
+signature as <code>transaction_safe</code> except for those where it
+is explicitly required.
+</p>
+
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+</cxx-section>
+</cxx-clause>
+
+   <cxx-clause id="language.support" number=18>
+   <h1>Language support library</h1>
+      <cxx-section id="support.start.term" number=5>
+   <h1>Start and termination</h1>
+<p>
+Change in 18.5 [support.start.term] paragraph 4:
+
+<blockquote>
+<pre>[[noreturn]] void abort(void) <ins>transaction_safe</ins> noexcept ;
+</pre>
+The function <code>abort()</code> has additional behavior in this
+International Standard:
+<ul>
+
+<li>The program is terminated without executing destructors for
+objects of automatic, thread, or static storage duration and without
+calling functions passed to <code>atexit</code>() (3.6.3).</li>
+
+</ul>
+
+</blockquote>
+
+</cxx-section>
+
+
+      <cxx-section id="support.dynamic" number=6>
+   <h1>Dynamic memory management</h1>
+      <cxx-section id="new.delete" number=1>
+   <h1>Storage allocation and deallocation</h1>
+<p>
+Add to 18.6.1 [new.delete] paragraph 1:
+
+<blockquote>
+... <ins>The library versions of the global allocation and
+deallocation functions are declared <code>transaction_safe</code>
+(8.3.5 dcl.fct).</ins>
+
+</blockquote>
+
+</cxx-section>
+
+
+      <cxx-section id="alloc.errors" number=2>
+   <h1>Storage allocation errors</h1>
+<p>
+Add a first paragraph to section 18.6.2 [alloc.errors]:
+
+<blockquote class="new">
+The classes <code>bad_alloc</code>, <code>bad_array_length</code>, and
+<code>bad_array_new_length</code> support transaction
+cancellation (15.2 [except.ctor]). [ Note: Special support from the
+implementation might be necessary to successfully rethrow such an
+exception after leaving an atomic_cancel block. -- end note ]
+
+</blockquote>
+
+
+
+      <cxx-section id="bad.alloc" number=1>
+   <h1>Class <code>bad_alloc</code></h1>
+<p>
+In 18.6.2.1 [bad.alloc], add
+<code>transaction_safe</code> to the declaration of each non-virtual
+member function and add
+<code>transaction_safe_noinherit</code> to the
+declaration of each virtual member function.
+</p>
+</cxx-section>
+
+      <cxx-section id="new.badlength" number=2>
+   <h1>Class <code>bad_array_new_length</code></h1>
+<p>
+In 18.6.2.2 [new.badlength], add
+<code>transaction_safe</code> to the declaration of each non-virtual
+member function and add
+<code>transaction_safe_noinherit</code> to the
+declaration of each virtual member function.
+</p>
+</cxx-section> 
+</cxx-section> 
+</cxx-section> 
+   
+   
+         <cxx-section id="support.rtti" number=7>
+   <h1>Type identification</h1>
+      <cxx-section id="bad.cast" number=2>
+   <h1>Class <code>bad_cast</code></h1>
+<p>
+Change in 18.7.2 [bad.cast] paragraph 1:
+
+<blockquote>
+The class <code>bad_cast</code> defines the type of objects thrown as
+exceptions by the implementation to report the execution of an invalid
+dynamic-cast expression (5.2.7 [expr.dynamic.cast]). <ins>The class
+supports transaction cancellation (15.2 [except.ctor]). [
+Note: Special support from the implementation might be necessary to
+successfully rethrow such an exception after leaving an atomic_cancel
+block. -- end note ]</ins> </blockquote>
+
+<p>
+
+In 18.7.2 [bad.cast], add <code>transaction_safe</code> to the
+declaration of each non-virtual member function and add
+<code>transaction_safe_noinherit</code> to the declaration of each virtual
+member function.
+</p>
+</cxx-section>
+
+
+
+
+      <cxx-section id="bad.typeid" number=3>
+   <h1>Class <code>bad_typeid</code></h1>
+<p>
+Change in 18.7.3 [bad.typeid] paragraph 1:
+
+<blockquote>
+The class <code>bad_typeid</code> defines the type of objects thrown
+as exceptions by the implementation to report a null pointer in a
+typeid expression (5.2.8 [expr.typeid]). <ins>The class supports
+transaction cancellation (15.2 [except.ctor]). [ Note: Special
+support from the implementation might be necessary to successfully
+rethrow such an exception after leaving an atomic_cancel block. -- end
+note ]</ins> </blockquote>
+
+<p>
+In 18.7.3 [bad.typeid], add <code>transaction_safe</code> to the
+declaration of each non-virtual member function and add
+<code>transaction_safe_noinherit</code> to the
+declaration of each virtual member function.
+</p>
+</cxx-section>
+</cxx-section>
+
+
+      <cxx-section id="support.exception" number=8>
+   <h1>Exception handling</h1>
+      <cxx-section id="exception" number=1>
+   <h1>Class <code>exception</code></h1>
+   
+<p>
+In 18.8.1 [exception], add
+<code>transaction_safe</code> to the declaration of each non-virtual
+member function and add
+<code>transaction_safe_noinherit</code> to the
+declaration of each virtual member function.
+</p>
+</cxx-section>
+
+      <cxx-section id="bad.exception" number=2>
+   <h1>Class <code>bad_exception</code></h1>
+
+<p>
+Change in 18.8.2 [bad.exception] paragraph 1:
+
+<blockquote>
+The class <code>bad_exception</code> defines the type of objects
+thrown as described in <del>(15.5.2 [except.unexpected]).</del>
+<ins>15.5.2 [except.unexpected].  The class supports transaction
+cancellation (15.2 [except.ctor]).  [ Note: Special support
+from the implementation might be necessary to successfully rethrow
+such an exception after leaving an atomic_cancel block. -- end note
+]</ins>
+
+</blockquote>
+<p>
+In 18.8.2 [bad.exception], add
+<code>transaction_safe</code> to the declaration of each non-virtual
+member function and add
+<code>transaction_safe_noinherit</code> to the
+declaration of each virtual member function.
+</p>
+
+</cxx-section>
+</cxx-section>
+
+      <cxx-section id="support.runtime" number=10>
+   <h1>Other runtime support</h1>
+<p>
+Change in 18.10 [support.runtime] paragraph 4:
+
+<blockquote>
+The function signature <code>longjmp(jmp_buf jbuf, int val)</code> has
+more restricted behavior in this International Standard. A
+<code>setjmp</code>/<code>longjmp</code> call pair has undefined
+behavior if replacing the <code>setjmp</code> and <code>longjmp</code>
+by <code>catch</code> and <code>throw</code> would invoke any
+non-trivial destructors for any automatic objects<ins>, or would
+transfer out of a synchronized block (6.9 [stmt.sync]) or
+atomic block (6.10 [stmt.tx])</ins>.
+
+</blockquote>
+
+</cxx-section>
+</cxx-clause>
+
+
+   <cxx-clause id="diagnostics" number=19>
+   <h1>Diagnostics library</h1>
+      <cxx-section id="std.exceptions" number=2>
+   <h1>Exception classes</h1>
+<p>
+Change in 19.2 [std.exceptions] paragraph 3:
+
+<blockquote>
+... These exceptions are related by inheritance.  <ins>The exception
+classes support transaction cancellation (15.2
+[except.ctor]). [ Note: Special support from the implementation might
+be necessary to successfully rethrow such an exception after leaving
+an atomic_cancel block. -- end note ].</ins>
+
+</blockquote>
+
+Add the following to the synopsis in 19.2 [std.exceptions] paragraph 3:
+
+<blockquote class="new">
+<pre>  template&lt;class T&gt; class tx_exception;
+</pre>
+
+</blockquote>
+
+<p>
+In 19.2 [std.exceptions], add <code>transaction_safe</code> to the
+declaration of each non-virtual member function and add
+<code>transaction_safe_noinherit</code> to the
+declaration of each virtual member function.
+</p>
+
+
+
+      <cxx-section id="tx.exception" number=10>
+   <h1>Class template <code>tx_exception</code></h1>
+<p>
+Add a new section 19.2.10 [tx.exception] paragraph 1:
+
+<blockquote class="new">
+<b>19.2.10 [tx.exception] Class template <code>tx_exception</code></b><br>
+
+<b>Class template <code>tx_exception</code></b> <br>
+
+<pre>  namespace std {
+    template&lt;class T&gt;
+    class tx_exception : public runtime_error {
+    public:
+       explicit tx_exception(T value) transaction_safe;
+       tx_exception(T value, const char* what_arg) transaction_safe;
+       tx_exception(T value, const string&amp; what_arg) transaction_safe;
+       T get() const transaction_safe;      
+    };
+  }
+</pre>
+
+A specialization of <code>tx_exception</code> supports transaction
+cancellation (15.2 [except.ctor]). If <code>T</code> is not a
+trivially copyable type (3.9 [basic.types]), the program is
+ill-formed.
+
+<pre>
+tx_exception(T value) transaction_safe;
+</pre>
+<p>
+<em>Effects:</em> Constructs an object of class
+<code>tx_exception</code>.
+</p>
+
+<p>
+<em>Postcondition:</em> The result of calling
+<code>get()</code> is equivalent to <code>value</code>.
+</p>
+
+<pre>
+tx_exception(T value, const char * what_arg) transaction_safe;
+</pre>
+<p>
+<em>Effects:</em> Constructs an object of class <code>tx_exception</code>.
+</p>
+
+<p>
+<em>Postcondition:</em> <code>strcmp(what(), what_arg) == 0</code> and
+the result of calling <code>get()</code> is equivalent to <code>value</code>.
+</p>
+
+<pre>
+tx_exception(T value, const string&amp; what_arg) transaction_safe;
+</pre>
+<p>
+<em>Effects:</em> Constructs an object of class
+<code>tx_exception</code>.
+</p>
+
+<p>
+<em>Postcondition:</em> <code>strcmp(what(), what_arg.c_str()) == 0</code>
+and the result of calling <code>get()</code> is equivalent
+to <code>value</code>.
+</p>
+
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+</cxx-clause>
+
+
+   <cxx-clause id="utilities" number=20>
+   <h1>General utilities library</h1>
+         <cxx-section id="memory" number=7>
+   <h1>Memory</h1>
+         <cxx-section id="pointer.traits" number=3>
+   <h1>Pointer traits</h1>
+      <cxx-section id="pointer.traits.functions" number=2>
+   <h1>Pointer traits member functions</h1>
+
+<p>
+Change in 20.7.3.2 [pointer.traits.functions]:
+
+<blockquote>
+<pre>static pointer pointer_traits::pointer_to(<em>see below</em> r);
+static pointer pointer_traits&lt;T*&gt;::pointer_to(<em>see below</em> r) <ins>transaction_safe</ins> noexcept;
+</pre>
+
+...<br>
+<ins><em>Transactions:</em> The first member function is
+transaction-safe if the invoked member function of <code>Ptr</code> is
+transaction-safe.</ins>
+
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+
+      <cxx-section id="ptr.align" number=5>
+   <h1>Align</h1>
+<p>
+Change the signature in 20.7.5 [ptr.align] paragraph 1:
+
+<blockquote>
+<pre>void* align(std::size_t alignment, std::size_t size,
+    void*&amp; ptr, std::size_t&amp; space) <ins>transaction_safe</ins>;
+</pre>
+</blockquote>
+
+</cxx-section>
+
+
+      <cxx-section id="allocator.traits" number=8>
+   <h1>Allocator traits</h1>
+      <cxx-section id="allocator.traits.members" number=2>
+   <h1>Allocator traits static member functions</h1>
+<p>
+In 20.7.8.2 [allocator.traits.members], add before paragraph 1:
+
+<blockquote>
+<ins>A function in this section is transaction-safe if the invoked
+function (as specified below) is transaction-safe.</ins>
+
+</blockquote>
+
+
+</cxx-section>
+</cxx-section>
+
+
+      <cxx-section id="default.allocator" number=9>
+   <h1>The default allocator</h1>
+      <cxx-section id="allocator.members" number=1>
+   <h1><code>allocator</code> members</h1>
+
+<p>
+In 20.7.9.1 [allocator.members], add "<code>transaction_safe</code>"
+to the declarations of the following member functions:
+<code>address</code> (twice), <code>allocate</code>,
+<code>deallocate</code>, <code>max_size</code>.
+</p>
+<p>
+Change in 20.7.9.1 [allocator.members] paragraphs 12 and 13:
+
+<blockquote>
+<p>
+</p><pre>template &lt;class U, class... Args&gt;
+  void construct(U* p, Args&amp;&amp;... args);
+</pre>
+<em>Effects:</em> <code>::new((void *)p)
+U(std::forward<args>(args)...)</args></code><br>
+<ins><em>Transactions:</em> Transaction-safe if the
+invoked constructor of U is transaction-safe.</ins>
+<p></p>
+
+<p>
+</p><pre>template &lt;class U&gt;
+  void destroy(U* p);
+</pre>
+<em>Effects:</em> <code>p-&gt;~U()</code><br>
+<ins><em>Transactions:</em> Transaction-safe if the
+destructor of U is transaction-safe.</ins>
+<p></p>
+
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+
+
+      <cxx-section id="temporary.buffer" number=11>
+   <h1>Temporary buffers</h1>
+<p number=1>
+Change the signatures in 20.7.11 [temporary.buffer]:
+
+<blockquote>
+<pre>template &lt;class T&gt;
+  pair&lt;T*, ptrdiff_t&gt; get_temporary_buffer(ptrdiff_t n) <ins>transaction_safe</ins> noexcept;
+</pre>
+...
+<pre>template &lt;class T&gt; void return_temporary_buffer(T* p) <ins>transaction_safe</ins>;
+</pre>
+
+</blockquote>
+
+</cxx-section>
+
+      <cxx-section id="specialized.algorithms" number=12>
+   <h1>Specialized algorithms</h1>
+<p>
+Change in 20.7.12 [specialized.algorithms] paragraph 1:
+
+<blockquote>
+... In the following algorithms, if an exception is thrown there are no
+effects.  <ins>Each of the following functions is transaction-safe if
+the constructor invoked via the placement allocation function is
+transaction-safe.</ins>
+
+</blockquote>
+
+
+
+
+      <cxx-section id="specialized.addressof" number=1>
+   <h1><code>addressof</code></h1>
+<p>
+Change the signature in 20.7.12.1 [specialized.addressof]:
+
+<blockquote>
+<pre>template &lt;class T&gt; T* addressof(T&amp; r) <ins>transaction_safe</ins> noexcept;
+</pre>
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+
+
+      <cxx-section id="c.malloc" number=13>
+   <h1>C library</h1>
+<p>
+Add after 20.7.13 [c.malloc] paragraph 2:
+
+<blockquote>
+<p>The contents are the same as the Standard C library header &lt;stdlib.h&gt;,
+with the following changes:
+</p>
+<p>
+<ins>The functions are transaction-safe.</ins>
+</p>
+
+</blockquote>
+
+
+<p>
+
+Change in 20.7.13 [c.malloc] paragraph 7:
+
+</p><blockquote>
+The contents are the same as the Standard C library header
+&lt;string.h&gt;, with the change to <code>memchr()</code> specified in
+21.8 [c.strings]. <ins>The functions are transaction-safe.</ins>
+
+</blockquote>
+
+
+
+
+
+</cxx-section>
+</cxx-section>
+
+      <cxx-section id="smartptr" number=8>
+   <h1>Smart pointers</h1>
+      <cxx-section id="unique.ptr" number=1>
+   <h1>Class template <code>unique_ptr</code></h1>
+<p>
+Change in 20.8.1 [unique.ptr] paragraph 5:
+
+<blockquote>
+... The template parameter T of unique_ptr may be an incomplete
+type. <ins>Each of the functions in this section is transaction-safe
+if either no functions are called or all functions called are
+transaction-safe.</ins>
+
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+</cxx-clause>
+
+
+   <cxx-clause id="strings" number=21>
+   <h1>Strings library</h1>
+      <cxx-section id="strings.general" number=1>
+   <h1>General</h1>
+<p>  
+Add after 21.1 [strings.general] paragraph 1:
+
+<blockquote class="new">
+All functions in this Clause are transaction-safe if the
+required operations on the supplied allocator (17.6.3.5
+[allocator.requirements]) and character traits (21.2.1
+[char.traits.require]) are transaction-safe.
+
+</blockquote>
+
+</cxx-section>
+
+
+      <cxx-section id="basic.string" number=4>
+   <h1>Class template <code>basic_string</code></h1>
+      <cxx-section id="string.iterators" number=3>
+   <h1><code>basic_string</code> iterator support</h1>
+<p>
+In 21.4.3 [string.iterators], add "<code>transaction_safe</code>" to the
+declarations of all member functions.
+</p>
+</cxx-section>
+
+      <cxx-section id="string.capacity" number=4>
+   <h1><code>basic_string</code> capacity</h1>
+<p>
+In 21.4.4 [string.capacity], add "<code>transaction_safe</code>" to the
+declarations of all member functions.
+</p>
+</cxx-section>
+
+      <cxx-section id="string.access" number=5>
+   <h1><code>basic_string</code> element access</h1>
+<p>
+In 21.4.5 [string.access], add "<code>transaction_safe</code>" to the
+declarations of all member functions.
+</p>
+</cxx-section>
+
+
+</cxx-section>
+</cxx-clause>
+
+   <cxx-clause id="containers" number=23>
+   <h1>Containers library</h1>
+         <cxx-section id="container.requirements" number=2>
+   <h1>Container requirements</h1>
+      <cxx-section id="container.requirements.general" number=1>
+   <h1>General container requirements</h1>
+<p>
+Add a new paragraph 4 in 23.2.1 [container.requirements.general]
+after paragraph 3:
+
+<blockquote class="new">
+Unless unconditionally specified to be
+transaction-safe, a function in this Clause is transaction-safe if all
+required operations are transaction-safe. [ Note: This includes
+operations on the element type, on <code>std::allocator_traits</code>,
+and on <code>Compare</code>, <code>Pred</code>, or <code>Hash</code>
+objects, depending on the respective function. -- end note ]
+
+</blockquote>
+
+<p>
+In table 96 in 23.2.1 [container.requirements.general]
+paragraph 4, add a note for <code>X::iterator</code> and
+<code>X::const_iterator</code>:
+
+<blockquote class="new">
+all functions required for the iterator category are transaction-safe
+</blockquote>
+
+<p>
+
+Add in 23.2.1 [container.requirements.general] after paragraph 6:
+<blockquote>
+<p>
+... If the container is empty, then <code>begin() ==
+end()</code>.
+
+
+<ins>The member functions <code>begin</code>, <code>end</code>,
+<code>cbegin</code>, <code>cend</code>, <code>size</code>,
+<code>max_size</code>, and <code>empty</code> are
+transaction-safe.</ins>
+
+</blockquote>
+
+
+<p>
+Add in 23.2.1 [container.requirements.general] after paragraph 10:
+
+<blockquote>
+<p>
+If the iterator type of a container belongs to the bidirectional or
+random access iterator categories (24.2 [iterator.requirements]), the
+container is called reversible and satisfies the additional
+requirements in Table 97.
+</p>
+<p>
+<em>[ table ]</em>
+</p>
+
+<ins>The member functions <code>rbegin</code>, <code>rend</code>,
+<code>crbegin</code>, and <code>crend</code> are
+transaction-safe.</ins>
+
+</blockquote>
+
+</cxx-section>
+
+
+      <cxx-section id="sequence.reqmts" number=3>
+   <h1>Sequence containers</h1>
+<p>
+Add in 23.2.3  [sequence.reqmts] before paragraph 17:
+
+<blockquote>
+
+<p>
+<em>[ table ]</em>
+</p>
+
+<ins>The member functions <code>front</code>, <code>back</code>, and
+<code>at</code> as well as the indexing operation <code>a[n]</code>
+are transaction-safe.</ins>
+
+<p>
+The member function <code>at()</code> provides bounds-checked access
+to container elements. <code>at()</code> throws
+<code>out_of_range</code> if <code>n &gt;= a.size()</code>.
+</p>
+
+</blockquote>
+
+</cxx-section>
+
+      <cxx-section id="unord.req" number=5>
+   <h1>Unordered associative containers</h1>
+<p>
+Add in 23.2.5 [unord.req] after paragraph 12:
+
+<blockquote>
+The behavior of a program that uses operator== or operator!= on
+unordered containers is undefined unless the Hash and Pred function
+objects respectively have the same behavior for both containers and
+the equality comparison operator for Key is a refinement [ Footnote:
+... ] of the partition into equivalent-key groups produced by Pred.
+</blockquote>
+
+<blockquote class="new">
+The member functions <code>bucket_count</code>,
+<code>max_bucket_count</code>, <code>bucket_size</code>,
+<code>begin</code>, <code>end</code>, <code>cbegin</code>,
+<code>cend</code>, <code>load_factor</code>, and
+<code>max_load_factor</code> are transaction-safe.
+
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+
+      <cxx-section id="sequences" number=3>
+   <h1>Sequence containers</h1>
+         <cxx-section id="array" number=2>
+   <h1>Class template <code>array</code></h1>
+      <cxx-section id="array.overview" number=1>
+   <h1>Class template <code>array</code> overview</h1>
+<p>
+In 23.3.2.1 [array.overview] and the corresponding subsections, add
+"<code>transaction_safe</code>" to the declarations of all member
+functions except <code>fill</code> and <code>swap</code>.
+</p>
+</cxx-section>
+</cxx-section>
+
+      <cxx-section id="deque" number=3>
+   <h1>Class template <code>deque</code></h1>
+      <cxx-section id="deque.overview" number=1>
+   <h1>Class template <code>deque</code> overview</h1>
+
+<p>
+
+
+In 23.3.3.1 [deque.overview], add
+"<code>transaction_safe</code>" to the declarations of all variants of
+the <code>begin</code> and <code>end</code> member functions and to
+the declarations of <code>size</code>, <code>max_size</code>,
+<code>empty</code>, <code>operator[]</code>, <code>front</code>,
+<code>back</code>.
+</p>
+
+</cxx-section>
+</cxx-section>
+
+
+      <cxx-section id="forwardlist" number=4>
+   <h1>Class template <code>forward_list</code></h1>
+      <cxx-section id="forwardlist.overview" number=1>
+   <h1>Class template <code>forward_list</code> overview</h1>
+<p>
+
+
+In 23.3.4.1 [forwardlist.overview], add "<code>transaction_safe</code>" to the
+declarations of all variants of the <code>begin</code> and
+<code>end</code> member functions and to the declarations of
+<code>max_size</code>, <code>empty</code>, <code>front</code>,
+<code>splice_after</code>, and <code>reverse</code>.
+</p>
+
+</cxx-section>
+
+
+      <cxx-section id="forwardlist.ops" number=6>
+   <h1><code>forward_list</code> operations</h1>
+<p>
+
+
+In 23.3.4.6 [forwardlist.ops], add "<code>transaction_safe</code>" to the
+declarations of all variants of the <code>begin</code> and
+<code>end</code> member functions and to the declarations of
+<code>max_size</code>, <code>empty</code>, <code>front</code>,
+<code>splice_after</code>, and <code>reverse</code>.
+</p>
+
+</cxx-section>
+
+</cxx-section>
+
+     <cxx-section id="list" number=5>
+   <h1>Class template <code>list</code></h1>
+     <cxx-section id="list.overview" number=1>
+   <h1>Class template <code>list</code> overview</h1>
+<p>
+In 23.3.5.1 [list.overview], add
+"<code>transaction_safe</code>" to the declarations of all variants of
+the <code>begin</code> and <code>end</code> member functions and to
+the declarations of <code>size</code>, <code>max_size</code>,
+<code>empty</code>, <code>front</code>, <code>back</code>,
+<code>splice</code>, and <code>reverse</code>.
+</p>
+</cxx-section>
+
+     <cxx-section id="list.ops" number=5>
+   <h1><code>list</code> operations</h1>
+<p>
+In 23.3.5.5 [list.ops], add
+"<code>transaction_safe</code>" to the declarations of all variants of
+the <code>begin</code> and <code>end</code> member functions and to
+the declarations of <code>size</code>, <code>max_size</code>,
+<code>empty</code>, <code>front</code>, <code>back</code>,
+<code>splice</code>, and <code>reverse</code>.
+</p>
+</cxx-section>
+
+</cxx-section>
+
+
+     <cxx-section id="vector" number=6>
+   <h1>Class template <code>vector</code></h1>
+     <cxx-section id="vector.overview" number=1>
+   <h1>Class template <code>vector</code> overview</h1>
+
+<p>
+
+
+In 23.3.6.1 [vector.overview], add "<code>transaction_safe</code>" to the
+declarations of all variants of the <code>begin</code> and
+<code>end</code> member functions and to the declarations of
+<code>size</code>, <code>max_size</code>, <code>capacity</code>,
+<code>empty</code>, <code>operator[]</code>, <code>front</code>,
+<code>back</code>, <code>data</code>.
+</p>
+
+</cxx-section>
+
+
+     <cxx-section id="vector.capacity" number=3>
+   <h1><code>vector</code> capacity</h1>
+
+<p>
+
+
+In 23.3.6.3 [vector.capacity], add "<code>transaction_safe</code>" to the
+declarations of all variants of the <code>begin</code> and
+<code>end</code> member functions and to the declarations of
+<code>size</code>, <code>max_size</code>, <code>capacity</code>,
+<code>empty</code>, <code>operator[]</code>, <code>front</code>,
+<code>back</code>, <code>data</code>.
+</p>
+
+</cxx-section>
+
+     <cxx-section id="vector.data" number=4>
+   <h1><code>vector</code> data</h1>
+
+<p>
+
+
+In 23.3.6.4 [vector.data], add "<code>transaction_safe</code>" to the
+declarations of all variants of the <code>begin</code> and
+<code>end</code> member functions and to the declarations of
+<code>size</code>, <code>max_size</code>, <code>capacity</code>,
+<code>empty</code>, <code>operator[]</code>, <code>front</code>,
+<code>back</code>, <code>data</code>.
+</p>
+
+</cxx-section>
+
+
+</cxx-section>
+
+
+
+     <cxx-section id="vector.bool" number=7>
+   <h1>Class <code>vector&lt;bool&gt;</code></h1>
+
+<p>
+
+In 23.3.7 [vector.bool], add "<code>transaction_safe</code>"
+to the declarations of all variants of the <code>begin</code> and
+<code>end</code> member functions, to the declarations of
+<code>size</code>, <code>max_size</code>, <code>capacity</code>,
+<code>empty</code>, <code>operator[]</code>, <code>front</code>,
+<code>back</code>, and <code>flip</code>, and to the static member
+function <code>swap</code>.
+</p>
+
+</cxx-section>
+</cxx-section>
+</cxx-section>
+
+
+     <cxx-section id="associative" number=4>
+   <h1>Associative containers</h1>
+        <cxx-section id="map" number=4>
+   <h1>Class template <code>map</code></h1>
+
+     <cxx-section id="map.overview" number=1>
+   <h1>Class template <code>map</code> overview</h1>
+
+<p>
+
+In 23.4.4.1 [map.overview], add
+"<code>transaction_safe</code>" to the declarations of all variants of
+the <code>begin</code> and <code>end</code> member functions and to
+the declarations of <code>size</code>, <code>max_size</code>, and
+<code>empty</code>.
+</p>
+
+</cxx-section>
+</cxx-section>
+
+
+    <cxx-section id="multimap" number=5>
+   <h1>Class template <code>multimap</code></h1>
+     <cxx-section id="multimap.overview" number=1>
+   <h1>Class template <code>multimap</code> overview</h1>
+<p>
+
+In 23.4.5.1 [multimap.overview], add
+"<code>transaction_safe</code>" to the declarations of all variants of
+the <code>begin</code> and <code>end</code> member functions and to
+the declarations of <code>size</code>, <code>max_size</code>, and
+<code>empty</code>.
+
+</p>
+</cxx-section>
+</cxx-section>
+
+
+     <cxx-section id="set" number=6>
+   <h1>Class template <code>set</code></h1>
+     <cxx-section id="set.overview" number=1>
+   <h1>Class template <code>set</code> overview</h1>
+<p>
+
+In 23.4.6.1 [set.overview], add
+"<code>transaction_safe</code>" to the declarations of all variants of
+the <code>begin</code> and <code>end</code> member functions and to
+the declarations of <code>size</code>, <code>max_size</code>, and
+<code>empty</code>.
+
+</p>
+</cxx-section>
+</cxx-section>
+
+
+     <cxx-section id="multiset" number=7>
+   <h1>Class template <code>multiset</code></h1>
+     <cxx-section id="multiset.overview" number=1>
+   <h1>Class template <code>multiset</code> overview</h1>
+<p>
+
+In 23.4.7.1 [multiset.overview], add "<code>transaction_safe</code>"
+to the declarations of all variants of the <code>begin</code> and
+<code>end</code> member functions and to the declarations of
+<code>size</code>, <code>max_size</code>, and
+<code>empty</code>.
+
+
+</p>
+</cxx-section>
+</cxx-section>
+</cxx-section>
+
+
+     <cxx-section id="unord" number=5>
+   <h1>Unordered associative containers</h1>
+        <cxx-section id="unord.map" number=4>
+   <h1>Class template <code>unordered_map</code></h1>
+     <cxx-section id="unord.map.overview" number=1>
+   <h1>Class template <code>unordered_map</code> overview</h1>
+<p>
+
+In 23.5.4.1 [unord.map.overview], add
+"<code>transaction_safe</code>" to the declarations of all variants of
+the <code>begin</code> and <code>end</code> member functions and to
+the declarations of <code>size</code>, <code>max_size</code>,
+<code>empty</code>, <code>operator[]</code>,
+<code>bucket_count</code>, <code>max_bucket_count</code>,
+<code>bucket_size</code>, <code>load_factor</code>, and
+<code>max_load_factor</code>.
+
+</p>
+</cxx-section>
+</cxx-section>
+
+
+
+     <cxx-section id="unord.multimap" number=5>
+   <h1>Class template <code>unordered_multimap</code> overview</h1>
+     <cxx-section id="unord.multimap.overview" number=1>
+   <h1>Class template <code>unordered_multimap</code> overview</h1>
+<p>
+
+In 23.5.5.1 [unord.multimap.overview], add
+"<code>transaction_safe</code>" to the declarations of all variants of
+the <code>begin</code> and <code>end</code> member functions and to
+the declarations of <code>size</code>, <code>max_size</code>,
+<code>empty</code>, <code>operator[]</code>,
+<code>bucket_count</code>, <code>max_bucket_count</code>,
+<code>bucket_size</code>, <code>load_factor</code>, and
+<code>max_load_factor</code>.
+
+</p>
+</cxx-section>
+</cxx-section>
+
+
+     <cxx-section id="unord.set" number=6>
+   <h1>Class template <code>unordered_set</code></h1>
+     <cxx-section id="unord.set.overview" number=1>
+   <h1>Class template <code>unordered_set</code> overview</h1>
+<p>
+
+In 23.5.6.1 [unord.set.overview], add
+"<code>transaction_safe</code>" to the declarations of all variants of
+the <code>begin</code> and <code>end</code> member functions and to
+the declarations of <code>size</code>, <code>max_size</code>,
+<code>empty</code>, <code>operator[]</code>,
+<code>bucket_count</code>, <code>max_bucket_count</code>,
+<code>bucket_size</code>, <code>load_factor</code>, and
+<code>max_load_factor</code>.
+
+</p>
+</cxx-section>
+</cxx-section>
+
+
+     <cxx-section id="unord.multiset" number=7>
+   <h1>Class template <code>unordered_multiset</code></h1>
+     <cxx-section id="unord.multiset.overview" number=1>
+   <h1>Class template <code>unordered_multiset</code> overview</h1>
+<p>
+
+In 23.5.7.1 [unord.multiset.overview], add
+"<code>transaction_safe</code>" to the declarations of all variants of
+the <code>begin</code> and <code>end</code> member functions and to
+the declarations of <code>size</code>, <code>max_size</code>,
+<code>empty</code>, <code>operator[]</code>,
+<code>bucket_count</code>, <code>max_bucket_count</code>,
+<code>bucket_size</code>, <code>load_factor</code>, and
+<code>max_load_factor</code>.
+
+</p>
+</cxx-section>
+</cxx-section>
+</cxx-section>
+
+
+     <cxx-section id="container.adaptors" number=6>
+   <h1>Container adaptors</h1>
+     <cxx-section id="container.adaptors.general" number=1>
+   <h1>In general</h1>
+<p>
+
+Add in 23.6.1 [container.adaptors.general] after paragraph
+3:
+
+</p><blockquote>
+For container adaptors, no <code>swap</code> function throws an
+exception unless that exception is thrown by the swap of the adaptor's
+<code>Container</code> or <code>Compare</code> object (if any).
+
+<p>
+
+<ins>A member function <code>f</code> of a container adaptor is
+transaction-safe if the required member functions of the adaptor's
+<code>Container</code> and <code>Compare</code> (if any) are
+transaction-safe, as given by the specification for
+<code>f</code>.</ins>
+
+</p></blockquote>
+
+</cxx-section>
+</cxx-section>
+</cxx-clause>
+
+
+   <cxx-clause id="iterators" number=24>
+   <h1>Iterators library</h1>
+        <cxx-section id="iterator.primitives" number=4>
+   <h1>Iterator primitives</h1>
+     <cxx-section id="iterator.operations" number=4>
+   <h1>Iterator operations</h1>
+<p>   
+Change in 24.4.4 [iterator.operations] paragraph 1:
+
+<blockquote>
+Since only random access iterators provide + and - operators, the
+library provides two function templates advance and distance. These
+function templates use + and - for random access iterators (and are,
+therefore, constant time for them); for input, forward and
+bidirectional iterators they use ++ to provide linear time
+implementations. <ins>A specialization of a function template
+specified in this Clause is transaction-safe if all operations
+required for the template arguments are transaction-safe.</ins>
+
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+
+
+     <cxx-section id="predef.iterators" number=5>
+   <h1>Iterator adaptors</h1>
+     <cxx-section id="reverse.iterators" number=1>
+   <h1>Reverse iterators</h1>
+<p>
+Change in 24.5.1 [reverse.iterators] paragraph 1:
+
+<blockquote>
+Class template <code>reverse_iterator</code> is an iterator adaptor
+that iterates from the end of the sequence defined by its underlying
+iterator to the beginning of that sequence. The fundamental relation
+between a reverse iterator and its corresponding iterator i is
+established by the identity: <code>&amp;*(reverse_iterator(i)) == &amp;*(i -
+1)</code>. <ins>A member function specified in this Clause is
+transaction-safe if all operations required for the template argument
+of <code>reverse_iterator</code> are transaction-safe.</ins>
+
+</blockquote>
+
+</cxx-section>
+
+
+
+     <cxx-section id="insert.iterators" number=2>
+   <h1>Insert iterators</h1>
+<p>
+Add a new paragraph after 24.5.2 [insert.iterators] paragraph 2:
+
+<blockquote class="new">
+A function or function template specified in this Clause is
+transaction-safe if all operations required for the template arguments
+are transaction-safe.
+
+</blockquote>
+
+</cxx-section>
+
+
+
+     <cxx-section id="move.iterators" number=3>
+   <h1>Move iterators</h1>
+<p>   
+Add a new paragraph after 24.5.3 [move.iterators] paragraph 2:
+
+<blockquote class="new">
+A member function specified in this Clause is transaction-safe if all
+operations required for the template arguments are transaction-safe.
+
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+
+
+     <cxx-section id="iterator.range" number=7>
+   <h1>range access</h1>
+<p>
+Change in 24.7 [iterator.range] paragraph 1:
+
+<blockquote>
+In addition to being available ..., and
+<code>&lt;vector&gt;</code>. <ins>A specialization of a function template
+specified in this Clause is transaction-safe if all required
+operations (as specified by the <em>Returns</em> element) are
+transaction-safe.
+
+</ins></blockquote>
+
+<p>
+In 24.7 [iterator.range], add "<code>transaction_safe</code>"
+to the declarations of <code>begin(T (&amp;array)[N])</code> and
+<code>end(T (&amp;array)[N])</code>
+</p>
+</cxx-section>
+</cxx-clause>
+
+
+     <cxx-clause id="algorithms" number=25>
+   <h1>Algorithms library</h1>
+     <cxx-section id="algorithms.general" number=1>
+   <h1>General</h1>
+<p>
+
+
+Add a new 25.1 [algorithms.general] paragraph 13:
+
+</p><blockquote class="new">
+A specialization of a function template specified in this Clause is
+transaction-safe if all functions and operations
+required for the template arguments are transaction-safe.  [ Example:
+The <code>fill</code> function (25.3.6 [alg.fill]) is transaction-safe
+if all required operations of its <code>ForwardIterator</code>
+template argument are transaction-safe and if <code>T</code>'s
+copy assignment operator is transaction-safe. -- end example ]
+
+</blockquote>
+
+</cxx-section>
+</cxx-clause>
+
+
+     <cxx-clause id="numerics" number=26>
+   <h1>Numerics library</h1>
+        <cxx-section id="numeric.ops" number=7>
+   <h1>Generalized numeric operations</h1>
+     <cxx-section id="numeric.ops.overview" number=1>
+   <h1>Header &lt;numeric&gt; synopsis</h1>
+   
+<p>
+Add a new paragraph after 26.7.1 [numeric.ops.overview] paragraph 1:
+
+<blockquote class="new">
+A specialization of a function template specified in this Clause is
+transaction-safe if all functions and operations required for the
+template arguments are transaction-safe (see 25.1 [algorithms.general]).
+
+</blockquote>
+
+</cxx-section>
+</cxx-section>
+
+     <cxx-section id="c.math" number=8>
+   <h1>C library</h1>
+<p>
+Add after 26.8 [c.math] paragraph 4:
+
+<blockquote>
+The contents of these headers are the same as the Standard C library
+headers &lt;math.h&gt; and &lt;stdlib.h&gt; respectively, with the following
+changes:
+
+<p>
+
+<ins>The functions from &lt;stdlib.h&gt;, including the additional
+overloads in &lt;cstdlib&gt; (see below), but excluding rand and
+srand, are transaction-safe.</ins>
+
+</p></blockquote>
+
+
+
+
+</cxx-section>
+</cxx-clause>
+

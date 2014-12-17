@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<!-- Sources at https://github.com/cplusplus/tm-ts -->
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"><!--[if lte IE 8]><script>document.createElement("nav");document.createElement("section");document.createElement("time");document.createElement("CXX-TITLEPAGE");document.createElement("CXX-DOCNUM");document.createElement("CXX-REVISES");document.createElement("CXX-EDITOR");document.createElement("CXX-EMAIL");document.createElement("CXX-TOC");document.createElement("CXX-CLAUSE");document.createElement("CXX-SECTION");document.createElement("CXX-REF");document.createElement("CXX-FOREIGN-INDEX");document.createElement("CXX-NOTE");document.createElement("CXX-PUBLISH-BUTTON");</script><![endif]--><style>template {display: none !important;} /* injected by platform.js */</style><style>body {transition: opacity ease-in 0.2s; } 
+body[unresolved] {opacity: 0; display: block; overflow: hidden; } 
+</style><style shim-shadowdom-css="">style { display: none !important; }
+cxx-function {
+	display: block; page-break-inside: avoid;
+}
+
+cxx-function:not(:last-child) {
+	margin-bottom: 3ex;
+}
+
+cxx-function > dl {
+	margin: 0px 0px 0px 2em;
+}
+
+cxx-function > pre {
+	margin: 0px;
+}cxx-signature {
+	padding-left: 2em; display: block; text-indent: -2em;
+}
+
+cxx-signature.formatted {
+	text-indent: 0px;
+}cxx-attribute {
+	display: block; margin-top: 0.5em; margin-bottom: 0.5em;
+}
+
+cxx-attribute dt {
+	float: left; font-style: italic; font-weight: normal; padding-right: 1ex;
+}
+
+cxx-attribute dd {
+	margin-left: 0em;
+}
+
+cxx-attribute dd > ul, cxx-attribute dd > ol {
+	clear: left;
+}cxx-requires {
+	display: block; margin-top: 0.5em; margin-bottom: 0.5em;
+}
+
+cxx-requires dt {
+	float: left; font-style: italic; font-weight: normal; padding-right: 1ex;
+}
+
+cxx-requires dd {
+	margin-left: 0em;
+}
+
+cxx-requires dd > ul, cxx-requires dd > ol {
+	clear: left;
+}cxx-preconditions {
+	display: block; margin-top: 0.5em; margin-bottom: 0.5em;
+}
+
+cxx-preconditions dt {
+	float: left; font-style: italic; font-weight: normal; padding-right: 1ex;
+}
+
+cxx-preconditions dd {
+	margin-left: 0em;
+}
+
+cxx-preconditions dd > ul, cxx-preconditions dd > ol {
+	clear: left;
+}cxx-effects {
+	display: block; margin-top: 0.5em; margin-bottom: 0.5em;
+}
+
+cxx-effects dt {
+	float: left; font-style: italic; font-weight: normal; padding-right: 1ex;
+}
+
+cxx-effects dd {
+	margin-left: 0em;
+}
+
+cxx-effects dd > ul, cxx-effects dd > ol {
+	clear: left;
+}cxx-synchronization {
+	display: block; margin-top: 0.5em; margin-bottom: 0.5em;
+}
+
+cxx-synchronization dt {
+	float: left; font-style: italic; font-weight: normal; padding-right: 1ex;
+}
+
+cxx-synchronization dd {
+	margin-left: 0em;
+}
+
+cxx-synchronization dd > ul, cxx-synchronization dd > ol {
+	clear: left;
+}cxx-postconditions {
+	display: block; margin-top: 0.5em; margin-bottom: 0.5em;
+}
+
+cxx-postconditions dt {
+	float: left; font-style: italic; font-weight: normal; padding-right: 1ex;
+}
+
+cxx-postconditions dd {
+	margin-left: 0em;
+}
+
+cxx-postconditions dd > ul, cxx-postconditions dd > ol {
+	clear: left;
+}cxx-returns {
+	display: block; margin-top: 0.5em; margin-bottom: 0.5em;
+}
+
+cxx-returns dt {
+	float: left; font-style: italic; font-weight: normal; padding-right: 1ex;
+}
+
+cxx-returns dd {
+	margin-left: 0em;
+}
+
+cxx-returns dd > ul, cxx-returns dd > ol {
+	clear: left;
+}cxx-throws {
+	display: block; margin-top: 0.5em; margin-bottom: 0.5em;
+}
+
+cxx-throws dt {
+	float: left; font-style: italic; font-weight: normal; padding-right: 1ex;
+}
+
+cxx-throws dd {
+	margin-left: 0em;
+}
+
+cxx-throws dd > ul, cxx-throws dd > ol {
+	clear: left;
+}cxx-complexity {
+	display: block; margin-top: 0.5em; margin-bottom: 0.5em;
+}
+
+cxx-complexity dt {
+	float: left; font-style: italic; font-weight: normal; padding-right: 1ex;
+}
+
+cxx-complexity dd {
+	margin-left: 0em;
+}
+
+cxx-complexity dd > ul, cxx-complexity dd > ol {
+	clear: left;
+}cxx-exception-safety {
+	display: block; margin-top: 0.5em; margin-bottom: 0.5em;
+}
+
+cxx-exception-safety dt {
+	float: left; font-style: italic; font-weight: normal; padding-right: 1ex;
+}
+
+cxx-exception-safety dd {
+	margin-left: 0em;
+}
+
+cxx-exception-safety dd > ul, cxx-exception-safety dd > ol {
+	clear: left;
+}cxx-remarks {
+	display: block; margin-top: 0.5em; margin-bottom: 0.5em;
+}
+
+cxx-remarks dt {
+	float: left; font-style: italic; font-weight: normal; padding-right: 1ex;
+}
+
+cxx-remarks dd {
+	margin-left: 0em;
+}
+
+cxx-remarks dd > ul, cxx-remarks dd > ol {
+	clear: left;
+}cxx-error-conditions {
+	display: block; margin-top: 0.5em; margin-bottom: 0.5em;
+}
+
+cxx-error-conditions dt {
+	float: left; font-style: italic; font-weight: normal; padding-right: 1ex;
+}
+
+cxx-error-conditions dd {
+	margin-left: 0em;
+}
+
+cxx-error-conditions dd > ul, cxx-error-conditions dd > ol {
+	clear: left;
+}cxx-notes {
+	display: block; margin-top: 0.5em; margin-bottom: 0.5em;
+}
+
+cxx-notes dt {
+	float: left; font-style: italic; font-weight: normal; padding-right: 1ex;
+}
+
+cxx-notes dd {
+	margin-left: 0em;
+}
+
+cxx-notes dd > ul, cxx-notes dd > ol {
+	clear: left;
+}cxx-section {
+	display: block;
+}
+
+cxx-section:target {
+	background-color: inherit;
+}
+
+cxx-section:target > section > h1 {
+	background-color: rgb(255, 238, 221);
+}
+
+cxx-section header > h1 {
+	display: inline; font-size: 100%;
+}
+
+cxx-section header {
+	font-weight: bold; margin-top: 20px; margin-bottom: 20px; page-break-inside: avoid; page-break-after: avoid;
+}
+
+cxx-section header:after {
+	clear: both; display: block; content: " "; height: 0px;
+}cxx-clause {
+	display: block;
+}
+
+cxx-clause:target {
+	background-color: inherit;
+}
+
+cxx-clause:target > section > h1 {
+	background-color: rgb(255, 238, 221);
+}
+
+cxx-clause header > h1 {
+	display: inline; font-size: 100%;
+}
+
+cxx-clause header {
+	font-weight: bold; margin-top: 20px; margin-bottom: 20px; page-break-inside: avoid; page-break-after: avoid;
+}
+
+cxx-clause header:after {
+	clear: both; display: block; content: " "; height: 0px;
+}[is=cxx-table] {
+	margin-left: auto; margin-right: auto; border-collapse: collapse; border: thin solid black;
+}
+
+[is=cxx-table] caption {
+	white-space: nowrap;
+}
+
+[is=cxx-table] caption caption {
+	display: inline;
+}
+
+[is=cxx-table] th, [is=cxx-table] td {
+	border-style: solid none; border-color: black; border-width: thin; padding: 0px 0.25em;
+}
+
+[is=cxx-table].column-rules th, [is=cxx-table].column-rules td {
+	border-left-style: solid; border-right-style: solid;
+}
+
+[is=cxx-table] th {
+	border-bottom: medium double;
+}
+
+[is=cxx-table].center td {
+	text-align: center;
+}
+
+[is=cxx-table].list td {
+	border: medium none;
+}cxx-figure {
+	margin-left: auto; margin-right: auto;
+}
+
+cxx-figure figcaption {
+	white-space: nowrap; text-align: center;
+}
+
+cxx-figure figcaption figcaption {
+	display: inline;
+}[is=cxx-definition-section] dt {
+	font-weight: bold;
+}
+
+[is=cxx-definition-section] dd {
+	margin-left: 0px;
+}cxx-toc {
+	display: block;
+}
+
+cxx-toc nav > ol {
+	font-weight: bold;
+}
+
+cxx-toc ol {
+	font-weight: normal; padding-left: 0px; margin-left: 0px;
+}
+
+cxx-toc li {
+	list-style-type: none;
+}
+
+cxx-toc .marker {
+	display: inline-block;
+}
+
+cxx-toc li .marker {
+	width: 2em; text-align: left;
+}
+
+cxx-toc ol ol {
+	margin-left: 2em;
+}
+
+cxx-toc li li .marker {
+	width: 3em;
+}
+
+cxx-toc ol ol ol {
+	margin-left: 3em;
+}
+
+cxx-toc li li li .marker {
+	width: 3.5em;
+}
+
+cxx-toc ol ol ol ol {
+	margin-left: 3.5em;
+}
+
+cxx-toc li li li li .marker {
+	width: 4.5em;
+}cxx-get-element-by-id {
+	display: none;
+}core-xhr {
+	display: none;
+}cxx-foreign-index {
+	display: none;
+}cxx-titlepage {
+	display: block; min-height: 100%;
+}
+
+@media print {
+cxx-titlepage {
+	height: 8.8in;
+}
+
+
+}
+
+cxx-titlepage  {
+	position: relative;
+}
+
+cxx-titlepage table.draft_header {
+	position: absolute; right: 0px; top: 0px;
+}
+
+cxx-titlepage table.pdts_header {
+	position: absolute; right: 0px; top: 0px;
+}
+
+cxx-titlepage table.pdts_footer {
+	position: absolute; left: 0px; bottom: 5%;
+}
+
+cxx-titlepage table.pdts_warning {
+	position: absolute; bottom: 20%;
+}
+
+cxx-titlepage h1.draft_title {
+	position: absolute; top: 40%;
+}
+
+cxx-titlepage h1.pdts_title {
+	position: absolute; top: 30%;
+}
+
+cxx-titlepage p.draft_warning {
+	position: absolute; bottom: 5%;
+}
+
+cxx-titlepage h1 {
+	text-align: center;
+}
+
+cxx-titlepage th {
+	text-align: left; vertical-align: top;
+}cxx-ednote {
+	display: block;
+}
+
+cxx-ednote aside {
+	float: right; max-width: 40%; margin: 1ex; border: 1px dashed rgb(136, 136, 136); padding: 1ex; background-color: rgb(238, 238, 238);
+}cxx-note .nowrap {
+	white-space: nowrap;
+}cxx-footnote {
+	font-family: serif; white-space: normal; text-indent: initial;textIndent: initial; 
+}
+
+@media screen {
+cxx-footnote aside {
+	float: right; max-width: 30%; margin-left: 1em;
+}
+
+
+}
+
+@media print {
+cxx-footnote sup, cxx-footnote .marker {
+	display: none;
+}
+
+aside {  }
+
+
+}cxx-example {
+	display: block;
+}
+
+cxx-example.inline {
+	display: inline;
+}
+
+cxx-example .nowrap {
+	white-space: nowrap;
+}cxx-publish-button {
+	display: block;
+}cxx-codeblock {
+	display: block;
+}bnf-grammar {
+	display: block; font-style: italic; margin-left: 0.35in;
+}bnf-rule {
+	display: block; margin-left: 0.6in;
+}bnf-alt {
+	display: block; margin-left: 1.2in;
+}bnf-terminal {
+	font-style: normal;
+}</style>
+  <meta charset="utf-8">
+  
+  
+<style shim-shadowdom-css="">/* Copyright 2014 Google Inc. All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+@page {
+    margin: 10%;
+    @top-left { content: "© ISO/IEC"; font-size: 10pt; }
+    @top-right { content: string(docnum); font-weight: bold; font-size: 10pt; }
+    @bottom-left { content: string(current-section, last); font-size: 10pt; }
+    @bottom-right { content: counter(page); font-size: 10pt; }
+}
+cxx-titlepage { page: title; page-break-after: always; }
+@page title {
+    @top-left { content: "© ISO 2014 — All rights reserved"; }
+    @top-right { content: normal; }
+    @bottom-left { content: normal; }
+    @bottom-right { content: normal; }
+}
+
+@media screen {
+    body { max-width: 7in;
+           /* Make room for paragraph numbers. */
+           margin-left: 2em }
+}
+
+@media print {
+    html { font-size: 10pt; }
+    *   code { font-size: 80%; }
+    /* Note that only Prince generates clickable links. */
+    *   a[href] { text-decoration:none; }
+}
+
+@media screen {
+    /* Needed to make the <cxx-titlepage>'s vertical spacing work.
+       For print see the <cxx-titlepage> definition. */
+    html, body {height: 100%}
+}
+
+cxx-docnum { string-set: docnum content(); }
+
+cxx-clause { page-break-before: always; }
+@media screen {
+    cxx-clause, cxx-toc { margin-top: 3em; }
+}
+
+cxx-clause  header { font-size: 150%; }
+cxx-toc  h1 { font-size: 150%; }
+cxx-clause cxx-section  header { font-size: 117%; }
+cxx-clause cxx-section cxx-section  header { font-size: 100%; }
+
+[data-bookmark-label] { bookmark-label: attr(data-bookmark-label); }
+h1 { bookmark-level: 1; }
+cxx-toc  h1 { bookmark-level: 2; }
+cxx-clause h1 { bookmark-level: 2; }
+cxx-clause cxx-section h1 { bookmark-level: 3; }
+cxx-clause cxx-section cxx-section h1 { bookmark-level: 4; }
+
+*  .section-number { string-set: current-section "§ " content(); }
+
+p {margin-top: .5em; margin-bottom: .5em}
+p:first-child, ul, ol {margin-top: 0}
+
+[para_num]::before { content: attr(para_num); float: left;
+                     font-size: 70%; margin-left: -2.5em; width: 1.5em; text-align: right; }
+
+del {text-decoration: line-through; color: #8B0040;}
+ins {text-decoration: underline; color: #005100;}
+
+del2 {text-decoration: line-through; color: #FF0040; font-size:100%;}
+ins2 {text-decoration: underline; color: #FF0040; font-size:100%;}
+/* inserted in TS and then deleted for LWG */
+insdel {text-decoration: line-through; color: #FF4440; font-size:100%;}
+
+del3 {text-decoration: line-through; color: #006666; font-size:100%;}
+ins3 {text-decoration: underline; color: #00CC66; font-size:100%;}
+
+/* inserted in Rappersil and then deleted by another paper */
+insdel2 {text-decoration: line-through; color: #003366; font-size:100%;}
+
+pre {
+    margin-left: 1em;
+    margin-top: .5em;
+    margin-bottom: .5em;
+}
+
+/* Use an em-dash for the list bullet.
+   'print' is a proxy for supporting ::marker. */
+@media screen {
+    ul {
+        list-style: none;
+        /* Relative positioning on the 'ul' lets the absolutely-positioned
+           marker align relative to it.*/
+        position: relative;
+    }
+    ul li:before {
+        content: "\2014";
+        position: absolute; left: 10px;
+    }
+}
+@media print {
+    ul li::marker {
+        content: "\2014";
+    }
+}
+
+/* This is here rather than inside elements/toc.html because browsers
+   don't understand leader() or target-counter(), so they drop them
+   inside the CSSOM. */
+@media print {
+    /* Generate page numbers in the table of contents. */
+    cxx-toc  a[href]::after { content: leader(" . ") target-counter(attr(href), page); }
+
+    cxx-footnote  aside { float: footnote; footnote-policy: line; }
+}</style><title>Technical Specification for C++ Extensions for Transactional Memory, Working Draft, </title></head>
+
+<body>
+
+<cxx-titlepage stage="draft">
+    
+    
+      <table class="draft_header">
+        
+          <tbody><tr><th>Document Number:</th><td><cxx-docnum>N4272</cxx-docnum></td></tr>
+        
+        
+          <tr><th>Date:</th><td><time pubdate="">2014-11-07</time></td></tr>
+        
+        
+          <tr><th>Revises:</th><td><cxx-revises><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4179.html">N4179</a></cxx-revises></td></tr>
+        
+        
+          <tr><th>Editor:</th><td><cxx-editor>
+    Michael Wong<br>
+    IBM Corporation<br>
+    <cxx-email><a href="mailto:michaelw@ca.ibm.com">michaelw@ca.ibm.com</a></cxx-email>
+  </cxx-editor></td></tr>
+        
+      </tbody></table>
+    
+    
+    
+      <h1 class="draft_title">Working Draft, Technical Specification for C++ Extensions for Transactional Memory</h1>
+    
+    
+    
+    
+      <p class="draft_warning"><strong>Note: this is an early draft. It’s known to be
+      incomplet and incorrekt, and it has lots of b<span style="margin-left: -1.2pt; margin-right: 1pt">a</span>d<span style="width:1.5em"> </span>for<span style="margin-left:-3pt; margin-right:0.6pt">mat</span>ti<span style="position:relative; top:-0.15ex">n</span>g.</strong></p>
+    
+    
+  </cxx-titlepage>
+
+<cxx-toc>
+    
+    <nav>
+      <h1>Contents</h1>
+      
+        
+          <ol>
+            
+              <li><span class="marker">1</span><a href="#intro">General</a>
+        
+          <ol>
+            
+              <li><span class="marker">1.1</span><a href="#intro.scope">Scope</a>
+        
+      </li>
+            
+              <li><span class="marker">1.2</span><a href="#intro.references">Normative references</a>
+        
+      </li>
+            
+              <li><span class="marker">1.3</span><a href="#intro.compliance">Implementation compliance</a>
+        
+      </li>
+            
+          </ol>
+        
+      </li>
+            
+          </ol>
+        
+      
+    </nav>
+  </cxx-toc>
+
+
+<cxx-clause id="intro">
+    
+
+    <section>
+      <header><span class="section-number">1</span> <h1 data-bookmark-label="1 General">General</h1> <span style="float:right"><a href="#intro">[intro]</a></span></header>
+      
+  
+  <cxx-section id="intro.scope">
+    
+
+    <section>
+      <header><span class="section-number">1.1</span> <h1 data-bookmark-label="1.1 Scope">Scope</h1> <span style="float:right"><a href="#intro.scope">[intro.scope]</a></span></header>
+      
+    
+    <p para_num="1" id="intro.scope.1">This Technical Specification describes extensions to the C++ 
+    Programming Language (<cxx-ref to="intro.references"><a title="intro.references" href="#intro.references">1.2</a></cxx-ref>) that
+    enable the specification of Transactional Memory. These extensions include 
+    new syntactic forms and modifications to existing language and library.</p>
+
+    <p para_num="2" id="intro.scope.2">The International Standard, ISO/IEC 14882, provides important context
+    and specification for this Technical Specification. This document is 
+    written as a set of changes against that specification. Instructions
+    to modify or add paragraphs are written as explicit instructions. 
+    Modifications made directly to existing text from the International
+    Standard use <ins>underlining</ins> to represent added text and
+    <del>strikethrough</del> to represent deleted text.</p>
+            
+      <p para_num="3" id="intro.scope.3">This Technical Specification is non-normative. Some of the functionality
+      described by this Technical Specification may be considered for standardization
+      in a future version of C++, but it is not currently part of any C++ standard.
+      Some of the functionality in this Technical Specification may never be
+      standardized, and other functionality may be standardized in a substantially
+      changed form.</p>
+      
+      <p para_num="4" id="intro.scope.4">The goal of this Technical Specification is to build widespread existing
+      practice for Transactional Memory. It gives
+      advice on extensions to those vendors who wish to provide them.</p>
+  
+    </section>
+  </cxx-section>
+
+  <cxx-section id="intro.references">
+    
+
+    <section>
+      <header><span class="section-number">1.2</span> <h1 data-bookmark-label="1.2 Normative references">Normative references</h1> <span style="float:right"><a href="#intro.references">[intro.references]</a></span></header>
+      
+    
+    <p para_num="1" id="intro.references.1">The following referenced document is indispensable for the
+    application of this document. For dated references, only the
+    edition cited applies. For undated references, the latest edition
+    of the referenced document (including any amendments) applies.</p>
+    <ul>
+      <li>ISO/IEC 14882:2014, <cite>Programming Languages - C++</cite>
+      </li>
+    </ul>
+
+    <p para_num="2" id="intro.references.2">ISO/IEC 14882:2014 is herein after called the <dfn>C++ Standard</dfn>.
+    The sections in this Technical Specification are numbered in accordance with those in the <dfn>C++ Standard</dfn>.
+    </p>
+    
+
+    
+
+  
+    </section>
+  </cxx-section>
+  
+  <cxx-section id="intro.compliance">
+    
+
+    <section>
+      <header><span class="section-number">1.3</span> <h1 data-bookmark-label="1.3 Implementation compliance">Implementation compliance</h1> <span style="float:right"><a href="#intro.compliance">[intro.compliance]</a></span></header>
+      
+    
+    <p para_num="1" id="intro.compliance.1">Conformance requirements for this specification are the same as those 
+    defined in <cxx-ref in="cxx" to="intro.compliance">C++ <span title="intro.compliance">§1.4</span></cxx-ref>.
+    <cxx-note><span class="nowrap">[ <em>Note:</em></span>
+    Conformance is defined in terms of the behavior of
+    programs.
+    <span class="nowrap">— <em>end note</em> ]</span>
+  </cxx-note></p>
+  
+    </section>
+  </cxx-section>
+
+
+
+
+
+    </section>
+  </cxx-clause>
+
+
+<!--cxx-include href="execution_policies.html"-->
+<!--cxx-include href="exceptions.html"-->
+<!--cxx-include href="algorithms.html"-->
+
+
+
+
+</body></html>

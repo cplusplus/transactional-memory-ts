@@ -1,0 +1,252 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=windows-1252">
+<title>N4338: Editor's Report: Technical Specification for C++ Extensions for Transactional Memory</title>
+
+<style type="text/css">
+  ins { text-decoration:none; font-weight:bold; background-color:#A0FFA0 }
+  .new { text-decoration:none; font-weight:bold; background-color:#D0FFD0 }
+  del { text-decoration:line-through; background-color:#FFA0A0 }
+  strong { font-weight: inherit; color: #2020ff }
+  .old { background-color:#ffff40 }
+  .old ins { background-color:#a0ff30 }
+</style>
+
+</head>
+
+<body>
+
+Document number: N4338<br>
+Authors: Michael Wong, Jens Maurer<br>
+Date: 2014-11-21 <br>
+Reply-to:   michaelw@ca.ibm.com<br>
+Revision: revision of parts of N4265, N3999, N4179, N4180<br>
+
+
+<h1>Editor's Report: Technical Specification for C++ Extensions for Transactional Memory, post-Urbana</h1>
+
+
+
+<h2>Acknowledgment</h2>
+We wish to thank comments from the Review Committee of Jens Maurer, Mike Miller, and Alisdair Meredith as well as the following: 
+<blockquote>
+Hans Boehm<br>
+Justin Gottschlich<br>
+Victor Luchangcom<br>
+Jens Maurer<br>
+Paul McKenney<br>
+Maged Michael<br>
+Mark Moir<br>
+Torvald Riegel<br>
+Michael Scott<br>
+Tatiana Shpeisman<br>
+Michael Spear<br>
+Michael Wong<br>
+</blockquote>
+
+
+<h2>History</h2>
+<h3>Post-Urbana (2014-11-21)</h3>
+<p> 
+N4301 is the latest TM TS Working Draft. It contains changes to the TM TS as directed 
+by the committee at the Urbana meeting combining N4272 and N4265.
+</p>
+<p>
+N4302 is document N4301 reformatted as a PDTS ballot document.
+</p>
+<p>
+	N4338 is this document
+</p>
+
+<h3>Urbana (2014-11-07)</h3>
+
+
+<h4>	 Motion 3 (approved unanimously)</h4>
+<p>
+Move to create a working paper for the Technical Specification on C++ Extensions for 
+Transactional Memory with N4272, "Technical Specification on C++ Extensions for 
+Transactional Memory, Working Draft Header" and N4265, 
+"Transactional Memory Support for C++: Wording (revision 3)" as its initial content.
+</p>
+<p>
+	N4272 has the Working Draft front matter.
+</p>
+ 
+<p>
+N4265 presents the wording proposal including changes from Urbana (both core and
+library) for integrating transactional memory support into C++.  For
+motivation and introductory overview, see the predecessor paper N3999
+"Standard Wording for Transactional Memory Support for C++".
+</p>
+
+<h3>Pre-Urbana (2014-10-10)</h3>
+<p>
+The companion paper N4180 motivates and explains the additional
+features that have been integrated since the Rapperswil meeting. Those
+were approved by EWG in Urbana.
+</p>
+
+<p>
+N4179 presents the pre-Urbana integrated TM wording for core and library.
+</p>
+
+
+<h2>Changes</h2>
+
+<ul>
+<li>Addressed comments from 2014-06-02 review teleconference,
+clarifying the wording.</li>
+<li>Address CWG review comments from Rapperswil:
+<ul>
+<li>allow "synchronizes with" for non-library constructs</li>
+<li>volatile subobjects are tx-unsafe</li>
+<li>remove cross-translation unit safe-by-default</li>
+<li>simplified lambda transaction-safety</li>
+<li>redeclarations can omit <code>transaction_safe</code></li>
+<li>comparing pointers is unspecified unless tx-safety is the same</li>
+</ul>
+</li>
+
+<li>Address LWG review comments from Rapperswil:
+
+<ul>
+<li>added more cross-references in the library section</li>
+<li>prohibit additional tx-safe annotations by library
+implementations using the same words as for constexpr</li>
+<li>for exception types that support tx cancellation, add notes about required implementation support</li>
+<li>remove rand/srand, because some implementation use global
+state where accesses are synchronized using a mutex</li>
+
+</ul>
+</li>
+
+<li>add implicit conversion from "pointer to transaction_safe
+member function" to "pointer to member function" (see
+4.14)</li>
+
+<li>clarify definition of transaction-safe (defined term)</li>
+
+<li>added [[optimize_for_synchronized]] attribute (see section 7.6.6
+[dcl.attr.sync])</li>
+
+<li>added <code>transaction_safe noinherit</code> for virtual
+functions (non-viral)</li>
+
+<li>added transaction-safety for all containers and iterator-related
+functions</li>
+
+<li>added <code>tx_exception</code></li>
+
+<li>Addressed comments from 2014-09-15 CWG review teleconference
+<ul>
+<li>matching a <em>handler</em> performs transaction-safety conversions</li>
+<li>allow, but do not require <code>transaction_safe</code> on lambdas
+</li><li>a <code>transaction_safe noinherit</code> function overriding a <code>transaction_safe</code> function is ill-formed</li>
+<li>template argument deduction performs transaction-safety conversions</li>
+<li>allow forming a composite pointer type using a transaction-safety conversion</li>
+</ul>
+
+</li>
+
+<li>rename <code>maybe transaction_safe</code> to <code>transaction_safe noinherit</code>
+
+</li><li>Addressed comments from 2014-11-04 LWG review&lt;
+<ul>
+
+<li>for the containers, make one blanket statement covering
+all required functions and operations instead of detailed per-function
+lists</li>
+
+<li>reflect that not only user-provided functions, but also
+built-in operations can make an instantiation of standard library
+function template unsafe (e.g. std::copy invoked with "volatile int *"
+parameters)</li>
+
+<li>consider additional overloads in &lt;cxxx&gt; headers
+(compared to the corresponding xxx.h header) for
+tx-safety</li>
+
+<li>C library functions should not be "declared" transaction-safe to
+leave more room for implementers to have special compiler magic, not
+requiring actual modifications of C headers</li>
+
+<li>restrict <code>tx_exception</code> to trivially copyable
+types</li>
+
+<li>iterators of containers and rebound allocators are required to be
+transaction-safe</li>
+
+<li>also cover numerics algorithms (section 26.7)</li>
+
+</ul></li>
+
+<li>Renamed "transaction_safe noinherit" to
+"transaction_safe_noinherit" per 2014-11-05 EWG review</li>
+
+<li>Addressed comments from 2014-11-05 LWG review
+
+</li><li>Addressed comments from 2014-11-05 CWG review
+<ul>
+<li>do not inherit transaction_safe for redeclarations; allow that explicit specializations differ</li>
+
+</ul></li>
+
+</ul>
+
+
+
+
+
+<h2>Resolved issues</h2>
+
+<ul>
+
+<li>Under which circumstances is a lambda function (implicitly)
+declared transaction-safe? [It is declared tx-safe if its definition
+is (directly) safe and all invoked functions are tx-safe.] Do we want
+to allow an explicit transaction_safe/unsafe annotation? [Yes to the
+former.]</li>
+
+<li>Is the term "transaction-statement" still ok, or should that be
+renamed to "atomic-statement", in line with the (new) spelling of the
+keywords? <em>Telco 2014-03-31: use "atomic block" and
+"transaction-safe".</em></li>
+
+<li>Allow conversion of "pointer to transaction-safe member function"
+to "pointer to member function"</li>
+
+<li>add "transaction_safe noinherit" for virtual functions</li>
+
+<li><code>std::exception</code> is the base of the exception
+hierarchy. Should we declare its virtual what() function
+<code>transaction_safe</code>?  [no; instead review definition of
+derived classes such as length_error] This has serious ripple effects
+to user code, in particular if that user code is totally unaware of
+transactions. <em>Telco 2014-08-11 and 2014-09-08: introduce "maybe
+transaction_safe" for virtual functions, which is not viral, but
+accepts undefined behavior.</em></li>
+
+<li>For "composite pointer type" in 5 [expr], address that T might be
+"pointer to function" (not transaction-safe) vs. "pointer to
+transaction-safe function".  This can be unified to "pointer to
+function" (not transaction-safe).</li>
+
+<li>Introduce a
+<pre>template&lt;class T&gt;
+class tx_exception : exception { ... };
+</pre>
+
+with a transaction-safe "what()" function and where "T" can be
+memcpy'd.</li>
+
+<li>add "template specialization can be tx-safe even
+when corresponding member of the template is not"</li>
+
+</ul>
+
+
+
+
+
+
+</body></html>
