@@ -1,13 +1,13 @@
     Document Number: N4515
     Date:            2015-05-22
-    Revises:         revision of parts of N4338
+    Revises:         revision of N4338
     Project:         Programming Language C++
     Project Number:  TS 19841
     Reply-to:        Michael Wong
                      IBM Corporation
                      michaelw@ca.ibm.com
 
-# SG5 TM TS Editor's Report, post-Urbana
+# SG5 TM TS Editor's Report, post-Lenexa
 
 N4513 is the official working draft (these links may not be active yet until ISO posts these documents)
 http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4513.pdf
