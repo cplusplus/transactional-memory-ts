@@ -2,8 +2,11 @@
 
 <style type="text/css">
   ins { color:#000000; text-decoration:none; font-weight:bold; background-color:#A0FFA0 }
+  ins1 { color:#000000; text-decoration:none; font-weight:bold; background-color:#A0FFF0 }
   .new { text-decoration:none; font-weight:bold; background-color:#D0FFD0 }
+  .new1 { text-decoration:none; font-weight:bold; background-color:#D0FFF0 }
   del { text-decoration:line-through; background-color:#FFA0A0 }
+  del1 { text-decoration:line-through; background-color:#FFA0F0 }
   strong { font-weight: inherit; color: #2020ff }
   .old { background-color:#ffff40 }
   .old ins { background-color:#a0ff30 }
@@ -68,9 +71,9 @@ and many others not named here who contributed to the discussion.
     </ul>
 
     <p>ISO/IEC 14882:2014 is hereinafter called the <dfn>C++ Standard</dfn>.
-    Beginning with section 1.4 below, all clause and section numbers, titles, and 
+    Beginning with section 1.10 below, all clause and section numbers, titles, and 
     symbolic references in [brackets] refer to the corresponding elements of the C++ Standard.  
-    Sections 1.1 through 1.3 of this Technical Specification are introductory material 
+  Sections 1.1 through 1.5 of this Technical Specification are introductory material 
     and are unrelated to the similarly-numbered sections of the <dfn>C++ Standard</dfn>.	
   </p>
     
@@ -85,17 +88,43 @@ and many others not named here who contributed to the discussion.
     
 
     
-
-    
     
     <p>Conformance requirements for this specification are the same as those 
-    defined in 1.4 [intro.compliance].
+    defined in section 1.4 [intro.compliance] of the <dfn>C++ Standard</dfn>.
     <cxx-note>Conformance is defined in terms of the behavior of
-    programs.</cxxnote></p>
+    programs.</cxx-note></p>
   </cxx-section>
 
+<cxx-section id="intro.features" number=5>
+   <h1>Feature-testing recommendations (Informative)</h1>
 
+   	<p>An implementation that provides support for this Technical Specification 
+   	shall define the feature test macro in Table 1. 
 
+<blockquote>   		
+<p align="center" >
+Table 1 -- Feature Test Macro
+
+<table border="1" cellpadding="4" cellspacing="0" align="center">
+<tbody><tr>
+<td align="center">Name</td>
+<td align="center">Value</td>
+<td align="center">Header</td>
+</tr>
+<tr>
+<td><tt>__cpp_transactional_memory</tt> </td>
+<td>201505</td>
+<td><em>predeclared</em></td>
+</tr>
+</tbody></table>   		
+   		
+</blockquote>
+
+ 
+
+		    
+  
+  </cxx-section>
 
 <cxx-section id="intro.multithread" number=10>
    <h1>Multi-threaded executions and data races</h1>
@@ -112,8 +141,17 @@ nested within another synchronized block or atomic block is called an
 outer block.  [ Note: Due to syntactic constraints,
 blocks cannot overlap unless one is nested within the
 other. ] There is a global total order of execution for all outer
-blocks.  If, in that total order, T1 is ordered before T2, then the
+blocks.  If, in that total order, T1 is ordered before T2, 
+<ul>
+<li>
+no evaluation in T2 happens before any evaluation in T1 and
+</li>
+<li>
+if T1 and T2 perform conflicting expression evaluations,
+then the
 end of T1 synchronizes with the start of T2.
+</li>
+</ul>
 </p>
 </blockquote>
 
@@ -185,7 +223,7 @@ block appear to be contiguous in the interleaving.  -- end note ]
 <p>
 In section 2.11 [lex.name] paragraph 2, add
 <code>transaction_safe</code> and
-<code>transaction_safe_noinherit</code> to the table.
+<code>transaction_safe_dynamic</code> to the table.
 </p>
 </cxx-section>
 
@@ -341,9 +379,10 @@ Add at the end of 5.2.2 [expr.call] paragraph 1:
 
 <blockquote>
 ... [ Note: ... ] <ins>A call to a virtual function that is evaluated
-within a synchronized (6.9 [stmt.sync]) or atomic block (6.10
+within an atomic block (6.10
 [stmt.tx]) results in undefined behavior if the virtual function is
-declared <code> transaction_safe_noinherit</code> and the final
+declared <code>transaction_safe_dynamic</code>
+and the final
 overrider is not declared <code>transaction_safe</code>.</ins>
 
 </blockquote>
@@ -691,7 +730,8 @@ Change in clause 8 paragraph 4:
 
 <ins><em>tx-qualifier</em>:
      transaction_safe
-     transaction_safe_noinherit</ins>
+     <code>transaction_safe_dynamic</code>
+     </ins>
 </pre>
 </blockquote>
 
@@ -702,7 +742,7 @@ Change in clause 8 paragraph 4:
    <h1>Functions</h1>
    
 <p>
-Change in 8.3.5 [dcl.fct] paragraphs 1:
+Change in 8.3.5 [dcl.fct] paragraph 1:
 
 <blockquote>
 In a declaration T D where D has the form
@@ -719,7 +759,7 @@ returning T"<ins>, where the optional <code>transaction_safe</code> is present i
 optional <em>attribute-specifier-seq</em> appertains to the function type.
 </blockquote>
 <p>
-Change in 8.3.5 [dcl.fct] paragraphs 2:
+Change in 8.3.5 [dcl.fct] paragraph 2:
 <blockquote>
 In a declaration T D where D has the form
 </p><pre>    D1 ( <em>parameter-declaration-clause</em> ) <em>cv-qualifier-seq<sub>opt</sub>
@@ -771,10 +811,10 @@ Add  paragraph 16 at the end of section 8.3.5 [dcl.fct]:
 <blockquote class="new">
 
 <p>
-The <code>transaction_safe_noinherit</code> qualifier
+The <code>transaction_safe_dynamic</code> qualifier
 may only appear in a function declarator that declares a virtual
 function in a class definition.  A virtual function declared
-with the <code>transaction_safe_noinherit</code>
+with the <code>transaction_safe_dynamic</code>
 qualifier is considered to be declared
 <code>transaction_safe</code>. [ Note: A virtual function so declared
 can be overridden by a function that is not transaction-safe (see 10.3
@@ -974,17 +1014,17 @@ Add a new paragraph 17 at the end of section 10.3 [class.virtual]:
 <blockquote class="new">
 A function that overrides a function declared
 <code>transaction_safe</code>, but not
-<code>transaction_safe_noinherit</code>, is implicitly considered to
+<code>transaction_safe_dynamic</code>, is implicitly considered to
 be declared <code>transaction_safe</code>. [ Note: Its definition is
 ill-formed unless it actually has a transaction-safe definition (8.4.4
 dcl.fct.def.tx). -- end note ] A function declared
-<code>transaction_safe_noinherit</code> that overrides a function
+<code>transaction_safe_dynamic</code> that overrides a function
 declared <code>transaction_safe</code> (but not
-<code>transaction_safe_noinherit</code>) is ill-formed. [ Example:
+<code>transaction_safe_dynamic</code>) is ill-formed. [ Example:
 
 <pre>struct B {
   virtual void f() transaction_safe;
-  virtual ~B() transaction_safe_noinherit;
+  virtual ~B() transaction_safe_dynamic;
 };
 
 // pre-existing code
@@ -1003,7 +1043,7 @@ struct D2 : B
 
 struct D3 : B
 {
-  void f() transaction_safe_noinherit override;
+  void f() transaction_safe_dynamic override;
          // error: B::f() is transaction_safe
 };
 
@@ -1521,7 +1561,7 @@ exception after leaving an atomic_cancel block. -- end note ]
 In 18.6.2.1 [bad.alloc], add
 <code>transaction_safe</code> to the declaration of each non-virtual
 member function and add
-<code>transaction_safe_noinherit</code> to the
+<code>transaction_safe_dynamic</code> to the
 declaration of each virtual member function.
 </p>
 </cxx-section>
@@ -1532,7 +1572,7 @@ declaration of each virtual member function.
 In 18.6.2.2 [new.badlength], add
 <code>transaction_safe</code> to the declaration of each non-virtual
 member function and add
-<code>transaction_safe_noinherit</code> to the
+<code>transaction_safe_dynamic</code> to the
 declaration of each virtual member function.
 </p>
 </cxx-section> 
@@ -1560,7 +1600,7 @@ block. -- end note ]</ins> </blockquote>
 
 In 18.7.2 [bad.cast], add <code>transaction_safe</code> to the
 declaration of each non-virtual member function and add
-<code>transaction_safe_noinherit</code> to the declaration of each virtual
+<code>transaction_safe_dynamic</code> to the declaration of each virtual
 member function.
 </p>
 </cxx-section>
@@ -1585,7 +1625,7 @@ note ]</ins> </blockquote>
 <p>
 In 18.7.3 [bad.typeid], add <code>transaction_safe</code> to the
 declaration of each non-virtual member function and add
-<code>transaction_safe_noinherit</code> to the
+<code>transaction_safe_dynamic</code> to the
 declaration of each virtual member function.
 </p>
 </cxx-section>
@@ -1601,7 +1641,7 @@ declaration of each virtual member function.
 In 18.8.1 [exception], add
 <code>transaction_safe</code> to the declaration of each non-virtual
 member function and add
-<code>transaction_safe_noinherit</code> to the
+<code>transaction_safe_dynamic</code> to the
 declaration of each virtual member function.
 </p>
 </cxx-section>
@@ -1626,7 +1666,7 @@ such an exception after leaving an atomic_cancel block. -- end note
 In 18.8.2 [bad.exception], add
 <code>transaction_safe</code> to the declaration of each non-virtual
 member function and add
-<code>transaction_safe_noinherit</code> to the
+<code>transaction_safe_dynamic</code> to the
 declaration of each virtual member function.
 </p>
 
@@ -1681,7 +1721,7 @@ Add the following to the synopsis in 19.2 [std.exceptions] paragraph 3:
 <p>
 In 19.2 [std.exceptions], add <code>transaction_safe</code> to the
 declaration of each non-virtual member function and add
-<code>transaction_safe_noinherit</code> to the
+<code>transaction_safe_dynamic</code> to the
 declaration of each virtual member function.
 </p>
 
@@ -1762,6 +1802,44 @@ to <code>value</code>.
 
    <cxx-clause id="utilities" number=20>
    <h1>General utilities library</h1>
+   			<cxx-section id="utility" number=2>
+   <h1>Utility components</h1>
+   <p>
+Add in 20.2 [utility] after the synopsis:
+<blockquote class="new">
+	A function in this section is transaction-safe if all required operations are transaction-safe.
+</blockquote> 
+<cxx-section id="forward" number=4>
+   <h1><code>forward/move</code> helpers</h1>
+
+<p number=1>
+	Change the signature in 20.2.4 [forward]:
+
+
+<blockquote>
+	...
+<pre>template &lt;class T&gt;
+	constexpr T&& forward(remove_reference_t&lt;T&gt;& t) <ins>transaction_safe</ins> noexcept
+</pre>
+<pre>template &lt;class T&gt; constexpr T&& forward(remove_reference_t&lt;T&gt;&& t) <ins>transaction_safe</ins> noexcept
+</pre>
+...
+<pre>
+template &lt;class T&gt; constexpr remove_reference_t&lt;T&gt;&& move(T&& t) <ins>transaction_safe</ins> noexcept;
+</pre>
+...
+<pre>
+template &lt;class T&gt; constexpr conditional_t&lt;
+!is_nothrow_move_constructible&lt;T&gt;::value && is_copy_constructible&lt;T&gt;::value,
+const T&, T&&&gt; move_if_noexcept(T& x)  <ins>transaction_safe</ins> noexcept;
+</pre>
+</blockquote>	 
+</cxx-section>
+
+
+
+</cxx-section>
+   
          <cxx-section id="memory" number=7>
    <h1>Memory</h1>
          <cxx-section id="pointer.traits" number=3>

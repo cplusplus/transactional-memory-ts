@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=windows-1252">
-<title>N4338: Editor's Report: Technical Specification for C++ Extensions for Transactional Memory</title>
+<title>N4515: Editor's Report: Technical Specification for C++ Extensions for Transactional Memory</title>
 
 <style type="text/css">
   ins { text-decoration:none; font-weight:bold; background-color:#A0FFA0 }
@@ -16,23 +16,23 @@
 
 <body>
 
-Document number: N4338<br>
-Authors: Michael Wong, Jens Maurer<br>
-Date: 2014-11-21 <br>
+Document number: N4515<br>
+Authors: Michael Wong<br>
+Date: 2015-05-22 <br>
 Reply-to:   michaelw@ca.ibm.com<br>
-Revision: revision of parts of N4265, N3999, N4179, N4180<br>
+Revision: of N4338<br>
 
 
-<h1>Editor's Report: Technical Specification for C++ Extensions for Transactional Memory, post-Urbana</h1>
+<h1>Editor's Report: Technical Specification for C++ Extensions for Transactional Memory, post-Lenexa</h1>
 
 
 
 <h2>Acknowledgment</h2>
-We wish to thank comments from the Review Committee of Jens Maurer, Mike Miller, and Alisdair Meredith as well as the following: 
+We wish to thank comments from the Review Committee of Jens Maurer, Mike Miller, and Marshall Clow/Alisdair Meredith as well as the following: 
 <blockquote>
 Hans Boehm<br>
 Justin Gottschlich<br>
-Victor Luchangcom<br>
+Victor Luchangco<br>
 Jens Maurer<br>
 Paul McKenney<br>
 Maged Michael<br>
@@ -46,7 +46,39 @@ Michael Wong<br>
 
 
 <h2>History</h2>
+
+
+<h3>Lenexa (2015-05-08)</h3>
+<p> passed EWG, CWG, LWG review. LEWG did not need to review the PDTS comment N4410 </p>
+<p>
+Move to approve N4513 as the Transactional Memory TS working paper 
+and direct the Convener to transmit N4514 for publication as the Transactional Memory TS. 
+Approvde unaimously in Lenexa	
+</p>	
+<p>
+N4513 is the latest TM TS Working Draft. It contains changes to the TM TS as directed 
+by the committee at the Lenexa meeting based on the PDTS ballot comments.
+</p>
+<p>
+N4514 is document N4513 reformatted as a PDTS ballot document.
+</p>
+<p>
+	N4515 is this document - TM TS Editor's report, post Lenexa.
+</p>
+<p>
+<h2>Changes</h2>
+
+<ul>
+<li>Addresed NB PDTS comments in N4396 by N4410.</li>
+</ul>
+
+
+
 <h3>Post-Urbana (2014-11-21)</h3>
+
+<p>N4396 is the PDTS 19841 NB comments </p>
+<p>N4410 is SG5's responses to the PDTS comments in N4396>
+</p>
 <p> 
 N4301 is the latest TM TS Working Draft. It contains changes to the TM TS as directed 
 by the committee at the Urbana meeting combining N4272 and N4265.
@@ -57,6 +89,12 @@ N4302 is document N4301 reformatted as a PDTS ballot document.
 <p>
 	N4338 is this document - TM TS Editor's report, post Urbana.
 </p>
+
+
+
+
+
+
 
 <h3>Urbana (2014-11-07)</h3>
 
@@ -146,7 +184,7 @@ functions</li>
 <li>added <code>tx_exception</code></li>
 
 <li>Addressed comments from 2014-09-15 CWG review teleconference
-<ul>
+</li>
 <li>matching a <em>handler</em> performs transaction-safety conversions</li>
 <li>allow, but do not require <code>transaction_safe</code> on lambdas
 </li><li>a <code>transaction_safe noinherit</code> function overriding a <code>transaction_safe</code> function is ill-formed</li>

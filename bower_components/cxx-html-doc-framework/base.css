@@ -22,7 +22,7 @@ limitations under the License.
 }
 cxx-titlepage { page: title; page-break-after: always; }
 @page title {
-    @top-left { content: "© ISO 2014 — All rights reserved"; }
+    @top-left { content: "© ISO 2015 — All rights reserved"; }
     @top-right { content: normal; }
     @bottom-left { content: normal; }
     @bottom-right { content: normal; }

@@ -13,7 +13,7 @@ N4301 is the latest TM TS Working Draft.
 
 N4302 is the TM TS PDTS for balloting. 
 
-N338 is the TM TS Editor's report. This is really the first version.
+N4338 is the TM TS Editor's report. This is really the first version.
 
 ## Technical Changes
 

@@ -1,14 +1,14 @@
 <cxx-titlepage stage="pdts">
-  <cxx-docnum>N4104</cxx-docnum>
-  <cxx-tsnum>19570</cxx-tsnum>
-  <time pubdate="">2014-07-04</time>
-  <cxx-revises><a href="https://github.com/cplusplus/parallelism-ts/releases/download/N4071/parallelism-ts.pdf">N4071</a></cxx-revises>
+  <cxx-docnum>D4514</cxx-docnum>
+  <cxx-tsnum>19841</cxx-tsnum>
+  <time pubdate="">2015-05-08</time>
+  <cxx-revises><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4302.html">N4302</a></cxx-revises>
   <cxx-editor>
-    Jared Hoberock<br/>
-    NVIDIA Corporation<br/>
-    <cxx-email>jhoberock@nvidia.com</cxx-email>
+    Michael Wong<br/>
+    IBM Corporation<br/>
+    <cxx-email>michaelw@ca.ibm.com</cxx-email>
   </cxx-editor>
-  <h1>Technical Specification for C++ Extensions for Parallelism</h1>
+  <h1>Technical Specification for C++ Extensions for Transactional Memory</h1>
 </cxx-titlepage>
 
 <table style="page-break-after:always" border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%">
